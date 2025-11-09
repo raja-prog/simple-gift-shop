@@ -1,0 +1,30 @@
+// Prisma schema for gift shop
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id          String    @id @db.VarChar(50)
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String   @id @db.VarChar(60)
+  name        String   @db.VarChar(150)
+  description String?  @db.Text
+  image       String   @db.Text
+  price       Decimal  @db.Decimal(10,2)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
