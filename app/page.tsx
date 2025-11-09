@@ -19,7 +19,11 @@ export default async function Home() {
   return (
     <div className="min-h-screen px-4 py-6 max-w-6xl mx-auto">
       <header className="flex flex-col gap-3 mb-8 text-center">
-        <h1 className="h1-display gradient-text">Simple Gift Shop</h1>
+          <h1 className="h1-display">
+            <span className="text-zinc-300 dark:text-zinc-400 font-medium tracking-wide">where</span>{' '}
+            <span className="gradient-text font-semibold">“This reminded me of you”</span>{' '}
+            <span className="text-zinc-300 dark:text-zinc-400 font-medium tracking-wide">lives</span>
+          </h1>
         <p className="text-sm sm:text-base text-subtle max-w-xl mx-auto">
           Discover hand-picked gifts, artisan candles, unique cards and curated
           sets. Message us directly to order.
