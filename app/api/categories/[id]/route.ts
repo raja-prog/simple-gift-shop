@@ -1,21 +1,37 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+// Mirror product route pattern: accept params which may arrive as a Promise.
+type ParamShape = { id: string } | Promise<{ id: string }>;
+
+async function unwrapId(params: ParamShape): Promise<string> {
+  const isPromise = typeof (params as unknown as { then?: unknown })?.then === 'function';
+  const resolved: { id: string } = isPromise ? await (params as Promise<{ id: string }>) : (params as { id: string });
+  return decodeURIComponent(resolved.id);
+}
+
+export async function PUT(req: Request, ctx: { params: ParamShape }) {
   try {
+    const id = await unwrapId(ctx.params);
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     const body = await req.json();
-    const updated = await prisma.category.update({ where: { id: params.id }, data: { name: body.name, description: body.description ?? null } });
+    const updated = await prisma.category.update({
+      where: { id },
+      data: { name: body.name, description: body.description ?? null }
+    });
     return NextResponse.json(updated);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, ctx: { params: ParamShape }) {
   try {
-    await prisma.category.delete({ where: { id: params.id } });
+    const id = await unwrapId(ctx.params);
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    await prisma.category.delete({ where: { id } });
     return NextResponse.json({ ok: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });
   }
 }
