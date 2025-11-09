@@ -124,7 +124,7 @@ Vercel keeps previous deployments. Use dashboard to roll back if a migration cre
 ```
 DATABASE_URL=postgresql://user:pass@localhost:5432/giftshop?schema=public
 NEXT_PUBLIC_STORE_NAME=My Gift Shop
-NEXT_PUBLIC_WHATSAPP_NUMBER=919600717850
+NEXT_PUBLIC_WHATSAPP_NUMBER=919791661595
 NEXT_PUBLIC_ADMIN_PASSWORD=changeme
 NEXT_PUBLIC_IMAGE_HOSTS=example.com,cdn.example.org
 ```
