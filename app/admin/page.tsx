@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123"; // MVP front-end only
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "kundima123"; // MVP front-end only
 
 interface Category { id: string; name: string; description?: string | null; }
 interface Product { id: string; name: string; description?: string | null; image: string; price: number; categoryId: string; }
