@@ -16,55 +16,55 @@ export default async function Home() {
       }
     }
   });
+  
+  // Get the first category for the CTA button
+  const firstCategory = categories[0];
+  
   return (
-    <div className="min-h-screen px-4 py-6 max-w-6xl mx-auto">
-      <header className="flex flex-col gap-3 mb-8 text-center">
-          <h1 className="h1-display">
-            <span className="text-zinc-300 dark:text-zinc-400 font-medium tracking-wide">where</span>{' '}
-            <span className="gradient-text font-semibold">“This reminded me of you”</span>{' '}
-            <span className="text-zinc-300 dark:text-zinc-400 font-medium tracking-wide">lives</span>
+    <div className="min-h-screen bg-white">
+      <div className="w-full px-5 md:px-8 py-12 md:py-16 space-y-16">
+        <header className="flex flex-col gap-5 text-center max-w-4xl mx-auto">
+          <h1 className="h1-display tracking-tight">
+            <span className="text-tertiary font-normal">where</span>{' '}
+            <span className="gradient-text font-bold">&ldquo;This reminded me of you&rdquo;</span>{' '}
+            <span className="text-tertiary font-normal">lives</span>
           </h1>
-        <p className="text-sm sm:text-base text-subtle max-w-xl mx-auto">
-          Discover hand-picked gifts, artisan candles, unique cards and curated
-          sets. Message us directly to order.
-        </p>
-        <div className="flex justify-center gap-3">
-          <Link
-            href="/admin"
-            className="gift-btn-outline text-xs sm:text-sm"
-          >
-            Admin
-          </Link>
-          <a
-            href="#categories"
-            className="gift-btn-primary text-xs sm:text-sm"
-          >
-            Browse Categories
-          </a>
-        </div>
-      </header>
+          <p className="text-base md:text-lg text-secondary leading-relaxed max-w-[48ch] mx-auto">
+            Everything you felt, frozen beautifully.
+          </p>
+          {firstCategory && (
+            <div className="flex justify-center pt-2">
+              <Link 
+                href={`/categories/${encodeURIComponent(firstCategory.id)}`} 
+                className="gift-btn-primary interactive-focus"
+              >
+                start exploring ✨
+              </Link>
+            </div>
+          )}
+        </header>
 
-      <section id="categories" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="h2-title text-high-contrast">Categories</h2>
-          <span className="text-xs text-subtle">
-            {categories.length} {categories.length === 1 ? "collection" : "collections"}
-          </span>
-        </div>
-        <div className="gift-divider" />
-        {categories.length === 0 && (
-          <p className="text-xs text-subtle italic">No categories yet — add some in the admin panel.</p>
-        )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {categories.map((c) => (
-            <CategoryCard
-              key={c.id}
-              category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-              previews={c.products.map(p => ({ id: p.id, name: p.name, image: p.image }))}
-            />
-          ))}
-        </div>
-      </section>
+        <section id="categories" className="space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
+            <h2 className="h2-title text-high-contrast">Categories</h2>
+            <span className="text-micro">
+              {categories.length} {categories.length === 1 ? "collection" : "collections"}
+            </span>
+          </div>
+          {categories.length === 0 && (
+            <p className="text-sm text-tertiary italic text-center py-12">No categories yet — add some in the admin panel.</p>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            {categories.map((c) => (
+              <CategoryCard
+                key={c.id}
+                category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
+                previews={c.products.map(p => ({ id: p.id, name: p.name, image: p.image }))}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

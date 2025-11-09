@@ -2,9 +2,19 @@ import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 0; // always fresh
+export const revalidate = 60; // Cache for 60 seconds
 
 interface PageProps { params: Promise<{ categoryId: string }> | { categoryId: string } }
+
+// Generate static params for all categories at build time
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany({
+    select: { id: true }
+  });
+  return categories.map((category) => ({
+    categoryId: category.id,
+  }));
+}
 
 export default async function CategoryPage({ params }: PageProps) {
   const resolved = 'then' in params ? await params : params;
@@ -14,21 +24,37 @@ export default async function CategoryPage({ params }: PageProps) {
   }
   // URL may be encoded (for ids with spaces). Decode before lookup.
   const id = decodeURIComponent(rawId);
-  const category = await prisma.category.findUnique({ where: { id } });
+  
+  // Fetch category and products in parallel
+  const [category, products] = await Promise.all([
+    prisma.category.findUnique({ where: { id } }),
+    prisma.product.findMany({ 
+      where: { categoryId: id }, 
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        price: true,
+        categoryId: true
+      }
+    })
+  ]);
+  
   if (!category) return notFound();
-  const products = await prisma.product.findMany({ where: { categoryId: category.id }, orderBy: { createdAt: 'desc' } });
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
       <h1 className="h2-title sm:text-2xl font-semibold text-high-contrast tracking-tight mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)]">{category.name}</h1>
-      <div className="gift-divider mb-4" />
+      <div className="gift-divider mb-6" />
       {category.description && (
-        <p className="text-sm text-muted mb-4">{category.description}</p>
+        <p className="text-sm text-muted mb-6">{category.description}</p>
       )}
       {products.length === 0 && (
         <p className="text-sm text-muted">No products in this category yet.</p>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
         {products.map(p => (
           <ProductCard
             key={p.id}

@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { Product } from "@/data/store";
 import { cleanImageUrl, isDisplayableRemote } from "@/lib/image";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import { ProductShareButtons } from "./ProductShareButtons";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850"; // Replace
 
@@ -15,43 +14,49 @@ export function ProductCard({ product }: { product: Product }) {
   const waLink = buildWhatsAppLink(WHATSAPP_NUMBER, message);
 
   return (
-    <div className="gift-card gift-hover p-3 flex flex-col gap-2">
-      <Link href={`/product/${product.id}`} className="block">
-        <div className="relative w-full aspect-square overflow-hidden rounded-md bg-gift-accent-soft">
+    <div className="category-card-parent">
+      <div className="category-card-3d gift-card gift-card-border p-4 flex flex-col">
+        <Link href={`/product/${product.id}`} className="block group">
+          <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg bg-zinc-100">
           {cleaned && isDisplayableRemote(cleaned) ? (
             <Image
               src={cleaned}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100vw, 33vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover opacity-0 data-[loaded=true]:opacity-100 transition-opacity duration-500 group-hover:scale-[1.02]"
+              onLoad={(e) => e.currentTarget.setAttribute('data-loaded','true')}
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full text-center px-2 text-[11px] text-subtle bg-[var(--gift-bg-alt)]">
+            <div className="flex items-center justify-center w-full h-full text-center px-2 text-[11px] text-tertiary bg-[var(--gift-bg-alt)]">
               Image unavailable
             </div>
           )}
+          {/* Skeleton shimmer */}
+          {(!cleaned || !isDisplayableRemote(cleaned)) ? null : (
+            <div className="absolute inset-0 pointer-events-none skeleton" />
+          )}
         </div>
-        <h4 className="mt-2 text-sm font-semibold tracking-tight">{product.name}</h4>
-        <p className="text-xs text-muted line-clamp-2">{product.description}</p>
+        <h4 className="mt-4 text-sm font-semibold tracking-tight text-zinc-900">{product.name}</h4>
+        <p className="mt-2 text-xs text-tertiary line-clamp-2">{product.description}</p>
       </Link>
-      <div className="flex items-center justify-between mt-auto">
-        <span className="text-sm font-medium text-pink-700">${product.price.toFixed(2)}</span>
+      <div className="gift-divider my-4" />
+      <div className="flex flex-col gap-2.5 mt-3">
+        <span className="text-sm font-medium text-pink-700">₹{product.price.toFixed(2)}</span>
         {waLink ? (
           <a
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="gift-btn-primary text-[10px] px-3 py-1"
+            className="text-[11px] px-3 py-2 rounded-lg font-medium bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors duration-200 text-center"
           >
             WhatsApp
           </a>
         ) : (
-          <span className="text-[10px] text-muted italic">Invalid number</span>
+          <span className="text-[11px] text-tertiary italic">Invalid number</span>
         )}
       </div>
-      {/* Share with potential image attachment (mobile Web Share API) */}
-      <ProductShareButtons product={product} whatsappNumber={WHATSAPP_NUMBER} message={message} />
+      </div>
     </div>
   );
 }

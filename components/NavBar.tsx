@@ -25,42 +25,41 @@ export function NavBar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-30 backdrop-blur-md bg-[var(--gift-bg)]/90 border-b border-[var(--gift-border)]">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-zinc-200 shadow-sm">
+      <div className="w-full px-5 md:px-8 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group" aria-label={STORE_NAME}>
-            <span className="h2-title gradient-text leading-none group-hover:opacity-90 transition-opacity">
+            <span className="text-xl md:text-2xl font-bold gradient-text leading-none group-hover:opacity-90 transition-opacity">
               <span className="md:hidden">{MOBILE_STORE_NAME}</span>
               <span className="hidden md:inline">{STORE_NAME}</span>
             </span>
-            <span className="hidden md:inline ml-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[var(--gift-bg-alt)] border border-[var(--gift-border)] text-high-contrast">Since 2020</span>
           </Link>
         </div>
-        <div className="hidden md:flex items-center gap-4 text-sm">
-          <Link href="/#categories" className="gift-btn-outline text-xs">Browse</Link>
-          <Link href="/admin" className="gift-btn-primary text-xs">Admin</Link>
+        <div className="hidden md:flex items-center gap-3">
+          <Link href="/#categories" className="gift-btn-outline text-sm">Browse</Link>
+          <Link href="/admin" className="gift-btn-primary text-sm">Admin</Link>
         </div>
-        <button aria-label="Toggle navigation" aria-expanded={open} onClick={() => setOpen(o => !o)} className="md:hidden gift-btn-outline text-[11px]">
+        <button aria-label="Toggle navigation" aria-expanded={open} onClick={() => setOpen(o => !o)} className="md:hidden gift-btn-outline text-sm">
           {open ? 'Close' : 'Menu'}
         </button>
       </div>
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden px-4 pb-4 animate-fade-in">
-          <div className="flex flex-col gap-3">
-            <Link onClick={() => setOpen(false)} href="/#categories" className="gift-btn-outline text-xs">Browse</Link>
-            <Link onClick={() => setOpen(false)} href="/admin" className="gift-btn-primary text-xs">Admin</Link>
-            <div className="pt-2">
-              <p className="text-[11px] text-subtle mb-2">Collections</p>
+        <div className="md:hidden px-5 pb-4 bg-zinc-50 border-t border-zinc-200">
+          <div className="flex flex-col gap-3 py-3">
+            <Link onClick={() => setOpen(false)} href="/#categories" className="gift-btn-outline text-sm w-full text-center">Browse</Link>
+            <Link onClick={() => setOpen(false)} href="/admin" className="gift-btn-primary text-sm w-full text-center">Admin</Link>
+            <div className="pt-3 border-t border-zinc-200">
+              <p className="text-xs text-tertiary mb-2 font-medium">Collections</p>
               <div className="flex flex-wrap gap-2">
-                {loading && <span className="text-[10px] text-muted">Loading…</span>}
+                {loading && <span className="text-xs text-muted">Loading…</span>}
                 {!loading && cats.map(c => (
-                  <Link key={c.id} href={`/categories/${encodeURIComponent(c.id)}`} onClick={() => setOpen(false)} className="px-3 py-1 rounded-full border border-[var(--gift-border)] bg-[var(--gift-bg-alt)] text-[11px] text-high-contrast hover:bg-pink-100">
+                  <Link key={c.id} href={`/categories/${encodeURIComponent(c.id)}`} onClick={() => setOpen(false)} className="px-3 py-1.5 rounded-full border border-zinc-200 bg-white text-xs text-high-contrast hover:bg-zinc-50 transition-colors">
                     {c.name}
                   </Link>
                 ))}
                 {!loading && cats.length === 0 && (
-                  <span className="text-[10px] text-muted italic">No categories yet</span>
+                  <span className="text-xs text-muted italic">No categories yet</span>
                 )}
               </div>
             </div>

@@ -13,10 +13,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Divs Aesthetix Store";
+const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Divs Aesthetix Gift";
 export const metadata: Metadata = {
   title: STORE_NAME,
-  description: `${STORE_NAME} - Mobile-first gift shop demo with admin panel`,
+  description: `${STORE_NAME} - where "this reminded me of you" lives`,
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +29,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 text-zinc-900 min-h-screen flex flex-col`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-zinc-900 min-h-screen flex flex-col`}>
+        <div id="animated-background">
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+          <div><span></span></div>
+        </div>
         <NavBar />
         <main className="flex-1">
           {children}
