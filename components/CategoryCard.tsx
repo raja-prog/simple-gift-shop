@@ -41,7 +41,8 @@ export function CategoryCard({ category, previews = [] }: { category: CategoryTy
                         src={p.image}
                         alt={p.name}
                         className="w-full h-full object-cover"
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex items-center justify-center w-full h-full text-[9px] text-tertiary">&nbsp;</div>

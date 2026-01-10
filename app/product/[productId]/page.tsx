@@ -41,6 +41,8 @@ export default async function ProductPage({ params }: PageProps) {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
+              quality={100}
+              priority={true}
             />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-center px-3 text-sm text-subtle bg-[var(--gift-bg-alt)]">
@@ -50,10 +52,23 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="h2-title leading-tight">{product.name}</h1>
-            <p className="text-sm text-muted mt-2 leading-relaxed">{product.description}</p>
+            <h1 className="h2-title leading-tight text-zinc-900">{product.name}</h1>
+            {product.description && (
+              <div className="mt-3 text-sm text-muted space-y-1.5">
+                {product.description.split('\n').filter(line => line.trim()).length > 1 ? (
+                  product.description.split('\n').filter(line => line.trim()).map((line, idx) => (
+                    <div key={`desc-${product.id}-${idx}`} className="flex gap-2">
+                      <span className="text-pink-500 flex-shrink-0">•</span>
+                      <span className="leading-relaxed">{line.trim()}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="leading-relaxed">{product.description}</p>
+                )}
+              </div>
+            )}
           </div>
-          <p className="text-xl font-semibold text-pink-700">${product.price.toFixed(2)}</p>
+          <p className="text-xl font-semibold text-pink-700">₹{product.price.toFixed(2)}</p>
           <div className="flex gap-3">
             <WhatsAppButtons number={WHATSAPP_NUMBER} message={message} size="md" />
             <Link href="/" className="gift-btn-outline text-sm">Back</Link>

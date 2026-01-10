@@ -26,6 +26,8 @@ export function ProductCard({ product }: { product: Product }) {
               sizes="(max-width: 640px) 100vw, 33vw"
               className="object-cover opacity-0 data-[loaded=true]:opacity-100 transition-opacity duration-500 group-hover:scale-[1.02]"
               onLoad={(e) => e.currentTarget.setAttribute('data-loaded','true')}
+              quality={95}
+              priority={false}
             />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-center px-2 text-[11px] text-tertiary bg-[var(--gift-bg-alt)]">
@@ -38,7 +40,20 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         <h4 className="mt-4 text-sm font-semibold tracking-tight text-zinc-900">{product.name}</h4>
-        <p className="mt-2 text-xs text-tertiary line-clamp-2">{product.description}</p>
+        {product.description && (
+          <div className="mt-2 text-xs text-tertiary space-y-1">
+            {product.description.split('\n').filter(line => line.trim()).length > 1 ? (
+              product.description.split('\n').filter(line => line.trim()).map((line, idx) => (
+                <div key={`desc-${product.id}-${idx}`} className="flex gap-1.5">
+                  <span className="text-pink-500 flex-shrink-0">•</span>
+                  <span>{line.trim()}</span>
+                </div>
+              ))
+            ) : (
+              <p className="line-clamp-2">{product.description}</p>
+            )}
+          </div>
+        )}
       </Link>
       <div className="gift-divider my-4" />
       <div className="flex flex-col gap-2.5 mt-3">
