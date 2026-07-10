@@ -6,16 +6,6 @@ export const revalidate = 60; // Cache for 60 seconds
 
 interface PageProps { params: Promise<{ categoryId: string }> | { categoryId: string } }
 
-// Generate static params for all categories at build time
-export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({
-    select: { id: true }
-  });
-  return categories.map((category) => ({
-    categoryId: category.id,
-  }));
-}
-
 export default async function CategoryPage({ params }: PageProps) {
   const resolved = 'then' in params ? await params : params;
   const rawId = resolved?.categoryId;
@@ -55,19 +45,39 @@ export default async function CategoryPage({ params }: PageProps) {
         <p className="text-sm text-muted">No products in this category yet.</p>
       )}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
-        {products.map(p => (
-          <ProductCard
-            key={p.id}
-            product={{
-              id: p.id,
-              name: p.name,
-              description: p.description || "",
-              image: p.image,
-              price: Number(p.price),
-              categoryId: p.categoryId
-            }}
-          />
-        ))}
+        {(() => {
+          const ids = products.map(p => p.id);
+          return (
+            // Fetch first gallery images for these products
+            // Note: in App Router, we can await inside JSX in server components
+            (async () => {
+              const images = ids.length > 0
+                ? await prisma.productImage.findMany({
+                    where: { productId: { in: ids } },
+                    orderBy: { order: 'asc' },
+                    select: { productId: true, url: true, order: true }
+                  })
+                : [];
+              const firstMap = new Map<string, string>();
+              for (const img of images) {
+                if (!firstMap.has(img.productId)) firstMap.set(img.productId, img.url);
+              }
+              return products.map(p => (
+                <ProductCard
+                  key={p.id}
+                  product={{
+                    id: p.id,
+                    name: p.name,
+                    description: p.description || "",
+                    image: firstMap.get(p.id) || p.image,
+                    price: Number(p.price),
+                    categoryId: p.categoryId
+                  }}
+                />
+              ));
+            })()
+          );
+        })()}
       </div>
     </div>
   );
