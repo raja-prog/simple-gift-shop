@@ -2,10 +2,6 @@
   command = "npm run build"
   publish = ".next"
 
-[build.environment]
-  # Ensure Prisma generates a compatible client during Netlify builds
-  PRISMA_CLI_BINARY_TARGETS = "native"
-
 # Official Next.js runtime for Netlify (SSR, ISR, API routes, on-demand revalidation)
 [[plugins]]
   package = "@netlify/plugin-nextjs"
