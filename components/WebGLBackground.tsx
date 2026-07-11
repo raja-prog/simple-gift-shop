@@ -115,6 +115,7 @@ export function WebGLBackground() {
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uTime, t);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      canvas.style.opacity = "1";
       if (!reduced) raf = requestAnimationFrame(frame);
     };
     frame();
@@ -136,7 +137,8 @@ export function WebGLBackground() {
         height: "100%",
         zIndex: -1,
         pointerEvents: "none",
-        opacity: 1,
+        opacity: 0,
+        transition: "opacity 0.6s ease",
       }}
     />
   );

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { revalidateStorefront } from '@/lib/revalidate';
+import { guardMutation, tooLarge } from '@/lib/api-guard';
 
 export async function GET() {
   try {
@@ -14,10 +15,19 @@ export async function GET() {
 type ImageInput = { url: string; alt?: string | null; order?: number } | string;
 
 export async function POST(req: Request) {
+  const denied = await guardMutation(req);
+  if (denied) return denied;
   try {
-    const data = await req.json();
+    const raw = await req.text();
+    if (tooLarge(raw)) {
+      return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+    }
+    const data = JSON.parse(raw);
     if (!data.id || !data.name || !data.categoryId || data.price === undefined) {
       return NextResponse.json({ error: 'id, name, categoryId, price required' }, { status: 400 });
+    }
+    if (String(data.id).length > 80 || String(data.name).length > 200) {
+      return NextResponse.json({ error: 'id or name too long' }, { status: 400 });
     }
     const existing = await prisma.product.findUnique({ where: { id: data.id } });
     if (existing) {

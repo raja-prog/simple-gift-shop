@@ -40,12 +40,6 @@ export function CategoryCard({ category, previews = [] }: { category: CategoryTy
       <div ref={cardRef} className="tilt-card" onMouseMove={handleMove} onMouseLeave={handleLeave}>
         <span className="tilt-glare" aria-hidden="true" />
 
-        {previews.length > 0 && (
-          <span className="tilt-badge badge-pop" style={{ animationDelay: "300ms" }}>
-            {previews.length}
-          </span>
-        )}
-
         <div className="tilt-content">
           <h3 className="tilt-layer card-title-serif text-lg sm:text-xl text-high-contrast mb-1.5" style={{ ["--z" as string]: "45px" }}>
             {category.name}

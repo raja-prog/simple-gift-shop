@@ -41,6 +41,11 @@ body {
   position: relative;
 }
 
+/* Cream base behind the WebGL gradient so there is no white flash on first paint (esp. mobile) */
+html {
+  background-color: #fbf9f7;
+}
+
 /* Aurora blob background (replaces old #animated-background particles) */
 
 img, video { display: block; height: auto; }
@@ -339,20 +344,30 @@ main { animation: page-in 0.3s ease both; }
   width: 36vw;
   max-width: 500px;
   height: 100vh;
+  height: 100dvh;
   z-index: 5;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  will-change: opacity;
 }
+.heart3d-fixed.is-ready { opacity: 1; }
 .heart3d-fixed canvas { display: block; }
 @media (max-width: 767px) {
   .heart3d-fixed {
     right: 0;
     width: 55vw;
     height: 60vh;
+    height: 60dvh;
     top: auto;
     bottom: 0;
-    opacity: 0.5;
   }
+  .heart3d-fixed.is-ready { opacity: 0.5; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .heart3d-fixed { transition: none; }
+}
+
 
 /* Editorial giant display type (award-site style) */
 .editorial-display {

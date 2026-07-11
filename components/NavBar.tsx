@@ -50,10 +50,10 @@ export function NavBar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/#categories" className="nav-link">Collections</Link>
+          <Link href="/collections" className="nav-link">Collections</Link>
           <Link href="/admin" className="nav-link">Admin</Link>
           <Link
-            href="/#categories"
+            href="/collections"
             className="group inline-flex items-center gap-2 text-sm font-medium text-zinc-900 cursor-grow"
           >
             <span className="link-sweep">Browse gifts</span>
@@ -83,7 +83,7 @@ export function NavBar() {
       {open && (
         <div className="md:hidden px-5 pb-5 bg-white/95 backdrop-blur-xl border-t border-zinc-200">
           <div className="flex flex-col gap-4 py-4">
-            <Link onClick={() => setOpen(false)} href="/#categories" className="text-lg font-medium text-zinc-900">Collections</Link>
+            <Link onClick={() => setOpen(false)} href="/collections" className="text-lg font-medium text-zinc-900">Collections</Link>
             <Link onClick={() => setOpen(false)} href="/admin" className="text-lg font-medium text-zinc-900">Admin</Link>
             <div className="pt-3 border-t border-zinc-200">
               <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-400 mb-3">Browse</p>

@@ -60,7 +60,7 @@ export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
             {firstCategoryId && (
               <div className="fade-rise" style={{ animationDelay: "1000ms" }}>
                 <Link
-                  href={`/categories/${encodeURIComponent(firstCategoryId)}`}
+                  href="/collections"
                   className="group inline-flex items-center gap-3 text-lg font-medium text-zinc-900 cursor-grow"
                 >
                   <span className="link-sweep">Explore the collections</span>

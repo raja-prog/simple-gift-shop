@@ -35,7 +35,7 @@ export default async function ProductPage({ params }: PageProps) {
     price: Number(productDb.price),
     categoryId: productDb.categoryId
   };
-  const message = `Hi! I'm interested in this product: ${product.name} (${product.id}) - ${product.image}`;
+  const message = `Hi! I'm interested in this product: ${product.name} (${product.id}) — ₹${Number(product.price).toLocaleString('en-IN')}. Could you share more details?`;
 
   return (
     <div className="page-shell">

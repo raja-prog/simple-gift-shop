@@ -3,8 +3,6 @@ import { useState, useEffect, Fragment } from "react";
 import { createPortal } from "react-dom";
 import { compressImageFile } from "@/lib/image";
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "kundima123"; // MVP front-end only
-
 interface Category { id: string; name: string; description?: string | null; }
 interface Product { id: string; name: string; description?: string | null; image: string; price: number; categoryId: string; }
 
@@ -33,7 +31,24 @@ export default function AdminPage() {
   const [productDrawerOpen, setProductDrawerOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
   useEffect(() => { setMounted(true); }, []);
+  // Check for an existing admin session on mount (httpOnly cookie, server-verified)
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/session');
+        if (active && res.ok) {
+          const data = await res.json();
+          setAuthed(!!data.authed);
+        }
+      } finally {
+        if (active) setAuthChecking(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
   function toggleGroup(id: string) { setCollapsedGroups(g => ({ ...g, [id]: !g[id] })); }
   // Combined preview images: primary first, then gallery (deduped, non-empty)
   function previewImages() {
@@ -57,8 +72,31 @@ export default function AdminPage() {
 
   useEffect(() => { if (authed) loadAll(); }, [authed]);
 
-  function authenticate(e: React.FormEvent) { e.preventDefault(); if (pw === ADMIN_PASSWORD) setAuthed(true); else alert("Incorrect password"); }
-  function logout() { setAuthed(false); setPw(""); }
+  async function authenticate(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      if (res.ok) {
+        setAuthed(true);
+        setPw("");
+      } else if (res.status === 429) {
+        alert("Too many attempts. Please wait a minute and try again.");
+      } else {
+        alert("Incorrect password");
+      }
+    } catch {
+      alert("Login failed. Please try again.");
+    }
+  }
+  async function logout() {
+    try { await fetch('/api/admin/logout', { method: 'POST' }); } catch {}
+    setAuthed(false);
+    setPw("");
+  }
   function categoryName(id: string) { return categories.find(c => c.id === id)?.name || id; }
   function renderProductRow(p: Product) {
     return (
@@ -292,9 +330,11 @@ export default function AdminPage() {
           </div>
           <form onSubmit={authenticate} className="flex flex-col gap-3">
             <input value={pw} onChange={e => setPw(e.target.value)} type="password" placeholder="Password" className="rounded-lg border border-[var(--gift-border)] bg-[var(--gift-bg-alt)] px-3 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 text-high-contrast placeholder:text-subtle" />
-            <button className="gift-btn-primary w-full py-3 text-sm">Enter</button>
+            <button disabled={authChecking} className="gift-btn-primary w-full py-3 text-sm disabled:opacity-60">
+              {authChecking ? "Checking…" : "Enter"}
+            </button>
           </form>
-          <p className="text-[11px] text-subtle text-center">Front-end only password check &mdash; not for production security.</p>
+          <p className="text-[11px] text-subtle text-center">Secure server-side session &mdash; only you can manage the store.</p>
         </div>
       </div>
     );

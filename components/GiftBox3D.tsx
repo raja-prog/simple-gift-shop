@@ -207,8 +207,14 @@ function Sparkle({ index }: { index: number }) {
 }
 
 export function GiftBox3D() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // Fade the heart in after mount to avoid a pop/flash on first paint
+    const t = setTimeout(() => setReady(true), 60);
+    return () => clearTimeout(t);
+  }, []);
   return (
-    <div className="heart3d-fixed" aria-hidden="true">
+    <div className={`heart3d-fixed${ready ? " is-ready" : ""}`} aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0.1, 8.0], fov: 36 }}
         dpr={[1, 1.5]}

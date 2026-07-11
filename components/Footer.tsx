@@ -21,7 +21,7 @@ export function Footer() {
             >
               <span>💬</span> Chat on WhatsApp
             </a>
-            <Link href="/#categories" className="text-zinc-400 hover:text-pink-500 transition-colors link-sweep">
+            <Link href="/collections" className="text-zinc-400 hover:text-pink-500 transition-colors link-sweep">
               Browse Collections
             </Link>
           </div>

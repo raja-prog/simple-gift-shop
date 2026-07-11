@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { revalidateStorefront } from '@/lib/revalidate';
+import { guardMutation, tooLarge } from '@/lib/api-guard';
 
 export async function GET() {
   try {
@@ -12,10 +13,19 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const denied = await guardMutation(req);
+  if (denied) return denied;
   try {
-    const data = await req.json();
+    const raw = await req.text();
+    if (tooLarge(raw)) {
+      return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+    }
+    const data = JSON.parse(raw);
     if (!data.id || !data.name) {
       return NextResponse.json({ error: 'id and name required' }, { status: 400 });
+    }
+    if (String(data.id).length > 80 || String(data.name).length > 200) {
+      return NextResponse.json({ error: 'id or name too long' }, { status: 400 });
     }
     const existing = await prisma.category.findUnique({ where: { id: data.id } });
     if (existing) {
