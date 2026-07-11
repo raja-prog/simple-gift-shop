@@ -25,6 +25,20 @@ model Product {
   price       Decimal  @db.Decimal(10,2)
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images      ProductImage[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String   @db.Text
+  alt       String?  @db.VarChar(150)
+  order     Int      @default(0)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId, order])
 }

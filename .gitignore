@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# backup data & secrets (keep private, do not commit)
+/backups/db-backup.json
+/backups/vercel-env.txt
+
 # vercel
 .vercel
 

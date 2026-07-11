@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateStorefront } from '@/lib/revalidate';
 
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({ orderBy: { createdAt: 'desc' } });
     return NextResponse.json(categories);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
 }
@@ -21,8 +22,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Category id already exists' }, { status: 409 });
     }
     const created = await prisma.category.create({ data: { id: data.id, name: data.name, description: data.description || null } });
+    revalidateStorefront();
     return NextResponse.json(created, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
   }
 }

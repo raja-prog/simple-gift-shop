@@ -54,3 +54,53 @@ export function isDisplayableRemote(raw: string | undefined | null): boolean {
 
 // Backwards compatibility exports
 export const cleanImageUrl = normalizeImageUrl;
+
+/**
+ * Compress/resize an image File in the browser using a canvas.
+ * Returns a smaller data URL. Falls back to the original on any failure.
+ */
+export async function compressImageFile(
+  file: File,
+  { maxEdge = 1280, quality = 0.8, mimeType = 'image/jpeg' }:
+    { maxEdge?: number; quality?: number; mimeType?: string } = {}
+): Promise<string> {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+    return readFileAsDataURL(file);
+  }
+  try {
+    const dataUrl = await readFileAsDataURL(file);
+    const img = await loadImage(dataUrl);
+    const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return dataUrl;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    const out = canvas.toDataURL(mimeType, quality);
+    return out.length < dataUrl.length ? out : dataUrl;
+  } catch {
+    return readFileAsDataURL(file);
+  }
+}
+
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = ev => resolve(String(ev.target?.result || ''));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}

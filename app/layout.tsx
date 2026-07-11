@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
+import { Footer } from "@/components/Footer";
+import { CustomCursor } from "@/components/CustomCursor";
+import { WebGLBackground } from "@/components/WebGLBackground";
+import { GiftBox3D } from "@/components/GiftBox3D";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const instrumentSerif = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
 const geistMono = Geist_Mono({
@@ -29,23 +41,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-zinc-900 min-h-screen flex flex-col`}>
-        <div id="animated-background">
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-          <div><span></span></div>
-        </div>
+      <body className={`${inter.variable} ${instrumentSerif.variable} ${geistMono.variable} antialiased text-zinc-900 min-h-screen flex flex-col`}>
+        <CustomCursor />
+        <WebGLBackground />
+        <GiftBox3D />
         <NavBar />
-        <main className="flex-1">
+        <main className="flex-1 relative z-10">
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   );

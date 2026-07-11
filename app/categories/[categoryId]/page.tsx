@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
 
@@ -35,11 +36,22 @@ export default async function CategoryPage({ params }: PageProps) {
   if (!category) return notFound();
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="h2-title sm:text-2xl font-semibold text-high-contrast tracking-tight mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)]">{category.name}</h1>
-      <div className="gift-divider mb-6" />
+    <div className="page-shell">
+      <Link href="/" className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-zinc-400 hover:text-pink-500 transition-colors mb-10 group cursor-grow">
+        <span className="group-hover:-translate-x-1 transition-transform inline-block">←</span>
+        All Collections
+      </Link>
+      <div className="flex items-baseline gap-4 mb-4">
+        <span className="section-number">·</span>
+        <h1 className="editorial-display !text-[clamp(2.5rem,7vw,5rem)]">{category.name}</h1>
+      </div>
+      <div className="flex items-center justify-between border-b border-zinc-200 pb-5 mb-10">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-zinc-400">
+          {products.length} {products.length === 1 ? 'item' : 'items'}
+        </span>
+      </div>
       {category.description && (
-        <p className="text-sm text-muted mb-6">{category.description}</p>
+        <p className="text-base md:text-lg text-secondary leading-relaxed mb-12 max-w-2xl">{category.description}</p>
       )}
       {products.length === 0 && (
         <p className="text-sm text-muted">No products in this category yet.</p>
