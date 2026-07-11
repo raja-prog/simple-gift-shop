@@ -39,6 +39,7 @@ body {
   margin: 0;
   padding: 0;
   position: relative;
+  overflow-x: hidden;
 }
 
 /* Cream base behind the WebGL gradient so there is no white flash on first paint (esp. mobile) */
@@ -347,12 +348,14 @@ main { animation: page-in 0.3s ease both; }
   height: 100dvh;
   z-index: 5;
   pointer-events: none;
+  overflow: hidden;
+  contain: strict;
   opacity: 0;
   transition: opacity 1.1s ease;
   will-change: opacity;
 }
 .heart3d-fixed.is-ready { opacity: 1; }
-.heart3d-fixed canvas { display: block; }
+.heart3d-fixed canvas { display: block; max-width: 100%; }
 @media (max-width: 767px) {
   .heart3d-fixed {
     right: 0;
