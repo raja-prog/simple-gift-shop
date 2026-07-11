@@ -209,9 +209,19 @@ function Sparkle({ index }: { index: number }) {
 export function GiftBox3D() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    // Fade the heart in after mount to avoid a pop/flash on first paint
-    const t = setTimeout(() => setReady(true), 60);
-    return () => clearTimeout(t);
+    // Wait for a few animation frames so the canvas has painted real
+    // content before we fade it in — avoids a pop/flash on mobile.
+    let raf1 = 0, raf2 = 0;
+    const t = setTimeout(() => {
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setReady(true));
+      });
+    }, 250);
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
   }, []);
   return (
     <div className={`heart3d-fixed${ready ? " is-ready" : ""}`} aria-hidden="true">

@@ -327,10 +327,10 @@ main { animation: page-in 0.3s ease both; }
 
 /* ── Consistent page shell ─────────────────────────────── */
 .page-shell {
-  padding: 2.5rem 1.25rem 5rem;
+  padding: 0.5rem 1.25rem 4rem;
 }
 @media (min-width: 768px) {
-  .page-shell { padding: 4rem 3rem 7rem; }
+  .page-shell { padding: 1rem 3rem 7rem; }
 }
 @media (min-width: 1280px) {
   .page-shell { padding: 4rem 5rem 7rem; }
@@ -348,7 +348,7 @@ main { animation: page-in 0.3s ease both; }
   z-index: 5;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.9s ease;
+  transition: opacity 1.1s ease;
   will-change: opacity;
 }
 .heart3d-fixed.is-ready { opacity: 1; }

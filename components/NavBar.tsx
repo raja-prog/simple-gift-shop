@@ -40,7 +40,7 @@ export function NavBar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="w-full px-5 md:px-8 py-4 md:py-5 flex items-center justify-between gap-4">
+      <div className="w-full px-5 md:px-8 py-3 lg:py-5 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-baseline gap-1.5 group cursor-grow" aria-label={STORE_NAME}>
           <span className="nav-logo text-zinc-900 leading-none transition-opacity group-hover:opacity-70">
             <span className="md:hidden">{MOBILE_STORE_NAME}</span>
@@ -50,10 +50,11 @@ export function NavBar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/collections" className="nav-link">Collections</Link>
+          <Link href="/collections" prefetch className="nav-link">Collections</Link>
           <Link href="/admin" className="nav-link">Admin</Link>
           <Link
             href="/collections"
+            prefetch
             className="group inline-flex items-center gap-2 text-sm font-medium text-zinc-900 cursor-grow"
           >
             <span className="link-sweep">Browse gifts</span>

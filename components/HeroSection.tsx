@@ -11,11 +11,11 @@ const EYEBROW = "Handcrafted with intention";
 
 export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
   return (
-    <header className="relative min-h-[86vh] flex flex-col justify-center pt-10 pb-16 md:pt-14">
+    <header className="relative min-h-[70vh] lg:min-h-[86vh] flex flex-col justify-start lg:justify-center pt-4 pb-16 lg:pt-14">
       <div>
         <div>
           {/* Eyebrow row */}
-          <div className="flex items-center gap-4 mb-10 md:mb-14">
+          <div className="flex items-center gap-4 mb-6 lg:mb-14">
             <span className="fade-rise flex items-center gap-2.5" style={{ animationDelay: "100ms" }}>
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75 animate-ping" />
@@ -61,6 +61,7 @@ export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
               <div className="fade-rise" style={{ animationDelay: "1000ms" }}>
                 <Link
                   href="/collections"
+                  prefetch
                   className="group inline-flex items-center gap-3 text-lg font-medium text-zinc-900 cursor-grow"
                 >
                   <span className="link-sweep">Explore the collections</span>
