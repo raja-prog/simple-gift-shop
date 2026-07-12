@@ -16,3 +16,18 @@ export function buildWhatsAppLink(rawNumber: string | undefined | null, message:
   const waMeLink = `https://wa.me/${digits}?text=${encoded}`;
   return waMeLink;
 }
+
+// Builds a clean, boutique-friendly WhatsApp order message.
+// Avoids leaking internal IDs / raw image URLs. Includes a product-page link when available.
+export function buildOrderMessage(opts: {
+  name: string;
+  price?: number;
+  productPath?: string; // e.g. /product/abc
+}): string {
+  const { name, price, productPath } = opts;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+  const link = productPath ? `${base}${productPath}` : "";
+  const priceLine = typeof price === "number" ? `\nPrice: ₹${price.toLocaleString("en-IN")}` : "";
+  const linkLine = link ? `\n${link}` : "";
+  return `Hi Divs Aesthetix! I'd like to order "${name}".${priceLine}${linkLine}\n\nIs it available? 😊`;
+}

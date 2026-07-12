@@ -3,9 +3,7 @@ import { Inter, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
-import { CustomCursor } from "@/components/CustomCursor";
-import { WebGLBackground } from "@/components/WebGLBackground";
-import { GiftBox3D } from "@/components/GiftBox3D";
+import { ClientDecor } from "@/components/ClientDecor";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -42,9 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${instrumentSerif.variable} ${geistMono.variable} antialiased text-zinc-900 min-h-screen flex flex-col`}>
-        <CustomCursor />
-        <WebGLBackground />
-        <GiftBox3D />
+        <ClientDecor />
         <NavBar />
         <main className="flex-1 relative z-10">
           {children}

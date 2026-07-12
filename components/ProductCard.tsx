@@ -4,14 +4,20 @@ import Link from "next/link";
 import { useRef } from "react";
 import type { Product } from "@/data/store";
 import { cleanImageUrl, isDisplayableRemote } from "@/lib/image";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { buildWhatsAppLink, buildOrderMessage } from "@/lib/whatsapp";
+import { formatPrice } from "@/lib/format";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850"; // Replace
 
 export function ProductCard({ product }: { product: Product }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const cleaned = cleanImageUrl(product.image);
-  const message = `Hi! I'm interested in "${product.name}" (ID: ${product.id}). Could you share more details?`;
+  const message = buildOrderMessage({
+    name: product.name,
+    price: Number(product.price),
+    productPath: `/product/${product.id}`,
+  });
   const waLink = buildWhatsAppLink(WHATSAPP_NUMBER, message);
   const shortDesc = (product.description || "").split('\n').map(l => l.trim()).filter(Boolean)[0] || "";
 
@@ -38,7 +44,7 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="tilt-parent cursor-grow">
       <div ref={cardRef} className="tilt-card !p-3 flex flex-col" onMouseMove={handleMove} onMouseLeave={handleLeave}>
         <span className="tilt-glare" aria-hidden="true" />
-        <Link href={`/product/${product.id}`} className="block group tilt-layer" style={{ ["--z" as string]: "50px" }}>
+        <Link href={`/product/${product.id}`} prefetch className="block group tilt-layer" style={{ ["--z" as string]: "50px" }}>
           <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 skeleton">
             {cleaned && isDisplayableRemote(cleaned) ? (
               <Image
@@ -48,7 +54,8 @@ export function ProductCard({ product }: { product: Product }) {
                 sizes="(max-width: 640px) 100vw, 33vw"
                 className="object-cover opacity-0 data-[loaded=true]:opacity-100 transition-all duration-700 group-hover:scale-[1.06]"
                 onLoad={(e) => e.currentTarget.setAttribute('data-loaded','true')}
-                quality={95}
+                quality={72}
+                loading="lazy"
                 priority={false}
               />
             ) : cleaned && cleaned.startsWith('data:') ? (
@@ -68,7 +75,7 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
 
         <div className="tilt-layer mt-3 flex flex-col flex-1" style={{ ["--z" as string]: "30px" }}>
-          <Link href={`/product/${product.id}`} className="block">
+          <Link href={`/product/${product.id}`} prefetch className="block">
             <h4 className="text-sm font-semibold tracking-tight text-zinc-900 line-clamp-1">{product.name}</h4>
             {shortDesc && (
               <p className="mt-1 text-xs text-tertiary line-clamp-2 leading-snug">{shortDesc}</p>
@@ -76,15 +83,15 @@ export function ProductCard({ product }: { product: Product }) {
           </Link>
 
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-base font-bold text-zinc-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
+            <span className="text-base font-bold text-zinc-900">{formatPrice(Number(product.price))}</span>
             {waLink ? (
               <a
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] px-3 py-2 rounded-full font-semibold bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors duration-200"
+                className="inline-flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full font-semibold bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors duration-200"
               >
-                💬 Order
+                <WhatsAppIcon size={14} /> Order
               </a>
             ) : (
               <span className="text-[11px] text-tertiary italic">Invalid number</span>

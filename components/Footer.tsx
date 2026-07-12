@@ -24,6 +24,33 @@ export function Footer() {
             <Link href="/collections" prefetch className="text-zinc-400 hover:text-pink-500 transition-colors link-sweep">
               Browse Collections
             </Link>
+            <div className="flex items-center gap-4 mt-1">
+              <a
+                href="https://www.instagram.com/divs.aesthetix.gifts/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Divs Aesthetix on Instagram"
+                className="text-zinc-400 hover:text-pink-500 transition-colors"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" strokeWidth="1.8" />
+                  <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
+                  <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+                </svg>
+              </a>
+              <a
+                href="https://www.youtube.com/@divsaesthetixgift"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Divs Aesthetix on YouTube"
+                className="text-zinc-400 hover:text-pink-500 transition-colors"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="2.5" y="5" width="19" height="14" rx="4" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M10.2 9.3 L15 12 L10.2 14.7 Z" fill="currentColor" />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
         <div className="border-t border-zinc-200/70 mt-8 pt-6">

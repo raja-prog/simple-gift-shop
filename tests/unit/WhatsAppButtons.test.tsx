@@ -5,7 +5,7 @@ import { WhatsAppButtons } from "@/components/WhatsAppButtons";
 describe("WhatsAppButtons", () => {
   it("renders a WhatsApp link for a valid number", () => {
     render(<WhatsAppButtons number="917358978687" message="Hi" />);
-    const link = screen.getByRole("link", { name: /message on whatsapp/i });
+    const link = screen.getByRole("link", { name: /order on whatsapp/i });
     expect(link).toHaveAttribute("href", expect.stringContaining("wa.me/917358978687"));
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));

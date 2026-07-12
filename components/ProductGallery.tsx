@@ -43,7 +43,7 @@ export function ProductGallery({ primary, images, alt }: { primary?: string; ima
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
-          quality={100}
+          quality={80}
           priority={true}
         />
       </div>

@@ -43,7 +43,7 @@ test.describe("storefront", () => {
     const productLink = page.locator('a[href^="/product/"]').first();
     await productLink.click();
     await expect(page).toHaveURL(/\/product\//);
-    const wa = page.getByRole("link", { name: /message on whatsapp/i });
+    const wa = page.getByRole("link", { name: /order on whatsapp/i }).first();
     const href = (await wa.getAttribute("href")) || "";
     expect(href).not.toContain("data:image");
     expect(href).not.toContain("base64");

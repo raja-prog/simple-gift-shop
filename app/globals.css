@@ -27,8 +27,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* This storefront is intentionally light-only. Keep tokens light so text
+       relying on --foreground never becomes near-white on the cream/white UI. */
+    --background: #ffffff;
+    --foreground: #111827;
   }
 }
 
@@ -45,6 +47,7 @@ body {
 /* Cream base behind the WebGL gradient so there is no white flash on first paint (esp. mobile) */
 html {
   background-color: #fbf9f7;
+  color-scheme: light;
 }
 
 /* Aurora blob background (replaces old #animated-background particles) */
@@ -375,15 +378,37 @@ main { animation: page-in 0.3s ease both; }
 /* Editorial giant display type (award-site style) */
 .editorial-display {
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(3rem, 11vw, 9rem);
+  font-size: clamp(2.25rem, 8.5vw, 9rem);
   font-weight: 500;
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
   color: #0a0a0a;
   text-wrap: balance;
   font-optical-sizing: auto;
 }
+@media (min-width: 768px) {
+  .editorial-display {
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+}
 .editorial-display em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Refined mobile hero title — elegant serif, lighter weight, airier rhythm */
+.hero-title-mobile {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.7rem, 7.5vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: #18181b;
+  text-wrap: balance;
+  font-optical-sizing: auto;
+}
+.hero-title-mobile em {
   font-style: italic;
   font-weight: 400;
 }
@@ -634,6 +659,154 @@ main { animation: page-in 0.3s ease both; }
 }
 .link-sweep:hover::after { transform: scaleX(1); transform-origin: left; }
 
+/* ── Cute gift loader (route Suspense fallback) ─────── */
+.gift-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbf9f7;
+  z-index: 50;
+}
+.gift-loader-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+.gift-loader-svg {
+  transform-origin: 60px 104px;
+  animation: gift-bounce 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  filter: drop-shadow(0 10px 16px rgba(236, 72, 153, 0.25));
+}
+.gift-loader-bow {
+  transform-origin: 60px 34px;
+  animation: gift-wiggle 1.1s ease-in-out infinite;
+}
+@keyframes gift-bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30%      { transform: translateY(-16px) scale(0.97, 1.03); }
+  55%      { transform: translateY(0) scale(1.05, 0.95); }
+  70%      { transform: translateY(-4px) scale(0.99, 1.01); }
+}
+@keyframes gift-wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50%      { transform: rotate(4deg); }
+}
+.gift-loader-spark {
+  position: absolute;
+  color: #f472b6;
+  font-size: 0.9rem;
+  opacity: 0;
+  animation: gift-spark 1.6s ease-in-out infinite;
+}
+.gift-loader-spark--1 { top: 6px;  left: -6px;  animation-delay: 0s; }
+.gift-loader-spark--2 { top: 20px; right: -8px; animation-delay: 0.45s; font-size: 1.1rem; }
+.gift-loader-spark--3 { top: 60px; left: -14px; animation-delay: 0.9s; }
+@keyframes gift-spark {
+  0%, 100% { opacity: 0; transform: scale(0.5) translateY(4px); }
+  50%      { opacity: 1; transform: scale(1) translateY(-4px); }
+}
+.gift-loader-text {
+  font-family: var(--font-display), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: #9d174d;
+  animation: gift-text-fade 1.6s ease-in-out infinite;
+}
+@keyframes gift-text-fade {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-loader-svg, .gift-loader-bow, .gift-loader-spark, .gift-loader-text {
+    animation: none;
+  }
+  .gift-loader-spark { opacity: 0.8; }
+}
+
+/* ── Premium CTA button (brand-gradient, boutique) ─────── */
+.btn-premium {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.9rem 0.9rem 0.9rem 1.6rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ec4899 0%, #f472b6 45%, #c084fc 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 12px 30px -10px rgba(236, 72, 153, 0.55),
+    0 4px 10px -4px rgba(192, 132, 252, 0.4);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+/* soft top gloss */
+.btn-premium::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  border-radius: 9999px 9999px 40% 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+/* sheen sweep */
+.btn-premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: -1;
+}
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 18px 40px -10px rgba(236, 72, 153, 0.6),
+    0 6px 14px -4px rgba(192, 132, 252, 0.5);
+}
+.btn-premium:active { transform: translateY(0); }
+.btn-premium:hover::before { left: 130%; }
+/* full-width (mobile) variant: text left, chip pinned right */
+.btn-premium--block {
+  justify-content: space-between;
+  padding-left: 1.5rem;
+}
+.btn-premium-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #db2777;
+  box-shadow: 0 2px 6px -1px rgba(219, 39, 119, 0.35);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+}
+.btn-premium:hover .btn-premium-chip {
+  transform: rotate(45deg) scale(1.05);
+  background: #fff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .line-mask > span,
   .fade-rise,
@@ -707,4 +880,100 @@ main { animation: page-in 0.3s ease both; }
 /* Respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ── Rotating trust stat (Hello Monday masked slide-up) ─────── */
+.trust-stat-mask {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 1.25em;
+  line-height: 1.25em;
+  vertical-align: bottom;
+  min-width: 12.5rem;
+  text-align: left;
+}
+.trust-stat-line {
+  display: inline-block;
+  will-change: transform;
+}
+.trust-stat-line.is-in {
+  animation: trust-slide-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.trust-stat-line.is-out {
+  animation: trust-slide-out 0.45s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+@keyframes trust-slide-in {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes trust-slide-out {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+
+/* ── Hand-drawn hero illustration (Hello Monday–style, mobile only) ─── */
+.hero-doodles {
+  position: relative;
+  z-index: 0;
+  margin: 0 auto 0.5rem;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-scene {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+}
+.hero-scene-caption {
+  margin-top: 0.35rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+/* Scene cross-fade between relationships */
+.scene-in { opacity: 1; transform: translateY(0); transition: opacity 0.45s ease, transform 0.45s ease; }
+.scene-out { opacity: 0; transform: translateY(6px); transition: opacity 0.4s ease, transform 0.4s ease; }
+/* Ink strokes draw themselves in, then the figures settle */
+.hero-scene .ink {
+  opacity: 0;
+  animation: ink-in 0.6s ease forwards;
+}
+.hero-scene .ink-ground { animation-delay: 100ms; }
+.hero-scene .girl { animation-delay: 250ms; }
+.hero-scene .boy  { animation-delay: 450ms; }
+.hero-scene .gift {
+  animation: ink-in 0.5s ease forwards, gift-bob 2.6s ease-in-out 1s infinite;
+  animation-delay: 750ms;
+  transform-origin: 181px 133px;
+}
+.hero-scene .spark {
+  animation: spark-pop 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+.hero-scene .spark-1 { animation-delay: 1200ms; }
+.hero-scene .spark-2 { animation-delay: 1500ms; }
+.hero-scene .spark-3 { animation-delay: 1800ms; }
+
+@keyframes ink-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gift-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-4px) rotate(-3deg); }
+}
+@keyframes spark-pop {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scene .ink,
+  .hero-scene .spark { opacity: 1; animation: none; }
 }

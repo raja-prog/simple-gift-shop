@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Divs Aesthetix Store";
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850";
 // Mobile-friendly reduction: drop trailing "Store" for small screens to avoid wrapping awkwardly
 const MOBILE_STORE_NAME = STORE_NAME.replace(/\s*Store\s*$/i, "");
 
@@ -13,6 +16,11 @@ export function NavBar() {
   const [cats, setCats] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const waLink = buildWhatsAppLink(
+    WHATSAPP_NUMBER,
+    "Hi Divs Aesthetix! I'd like to order a gift. Could you help me? 😊"
+  );
 
   useEffect(() => {
     async function load() {
@@ -51,19 +59,17 @@ export function NavBar() {
 
         <div className="hidden md:flex items-center gap-8">
           <Link href="/collections" prefetch className="nav-link">Collections</Link>
-          <Link href="/admin" className="nav-link">Admin</Link>
-          <Link
-            href="/collections"
-            prefetch
-            className="group inline-flex items-center gap-2 text-sm font-medium text-zinc-900 cursor-grow"
-          >
-            <span className="link-sweep">Browse gifts</span>
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 text-white transition-transform duration-500 group-hover:rotate-45">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3 13L13 3M13 3H5M13 3V11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </Link>
+          {waLink && (
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20BA5A] rounded-full px-4 py-2 transition-colors cursor-grow"
+            >
+              <WhatsAppIcon size={16} />
+              <span>Order</span>
+            </a>
+          )}
         </div>
 
         <button
@@ -85,7 +91,17 @@ export function NavBar() {
         <div className="md:hidden px-5 pb-5 bg-white/95 backdrop-blur-xl border-t border-zinc-200">
           <div className="flex flex-col gap-4 py-4">
             <Link onClick={() => setOpen(false)} href="/collections" className="text-lg font-medium text-zinc-900">Collections</Link>
-            <Link onClick={() => setOpen(false)} href="/admin" className="text-lg font-medium text-zinc-900">Admin</Link>
+            {waLink && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center justify-center gap-2 text-base font-semibold text-white bg-[#25D366] hover:bg-[#20BA5A] rounded-full px-5 py-3 transition-colors"
+              >
+                <WhatsAppIcon size={18} /> Order
+              </a>
+            )}
             <div className="pt-3 border-t border-zinc-200">
               <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-400 mb-3">Browse</p>
               <div className="flex flex-wrap gap-2">

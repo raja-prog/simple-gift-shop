@@ -49,7 +49,7 @@ export default async function CollectionsPage() {
 
         {categories.length === 0 && (
           <p className="text-sm text-tertiary italic text-center py-12">
-            No collections yet — add some in the admin panel.
+            New collections coming soon — message us on WhatsApp for custom orders.
           </p>
         )}
 
