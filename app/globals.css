@@ -785,10 +785,21 @@ main { animation: page-in 0.3s ease both; }
 }
 .btn-premium:active { transform: translateY(0); }
 .btn-premium:hover::before { left: 130%; }
-/* full-width (mobile) variant: text left, chip pinned right */
+/* full-width (mobile) variant: text centered, chip pinned right */
 .btn-premium--block {
-  justify-content: space-between;
-  padding-left: 1.5rem;
+  justify-content: center;
+  padding-top: 1.05rem;
+  padding-bottom: 1.05rem;
+  font-size: 1.05rem;
+}
+.btn-premium--block .btn-premium-chip {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.btn-premium--block:hover .btn-premium-chip {
+  transform: translateY(-50%) rotate(45deg) scale(1.05);
 }
 .btn-premium-chip {
   display: inline-flex;
@@ -925,7 +936,7 @@ main { animation: page-in 0.3s ease both; }
 .hero-scene {
   display: block;
   width: 100%;
-  max-width: 280px;
+  max-width: 560px;
   height: auto;
   margin: 0 auto;
 }

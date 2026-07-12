@@ -22,12 +22,12 @@ export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
   return (
     <>
       {/* ───────── MOBILE HERO (clean, centered) ───────── */}
-      <header className="lg:hidden relative flex flex-col items-center text-center pt-6 pb-10">
+      <header className="lg:hidden relative flex flex-col items-center justify-center text-center min-h-[calc(100svh-9rem)] pt-2 pb-6">
         {/* Hand-drawn gift-exchange scene */}
         <HeroDoodles />
 
         {/* Headline */}
-        <h1 className="hero-title-mobile mt-3">
+        <h1 className="hero-title-mobile mt-2">
           {LINES.map((line, i) => (
             <span key={i} className="line-mask">
               <span style={{ animationDelay: `${260 + i * 120}ms` }}>
@@ -44,14 +44,14 @@ export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
         </h1>
 
         {/* Trust row */}
-        <div className="fade-rise flex items-center gap-2 mt-4 text-[12px] text-zinc-500" style={{ animationDelay: "820ms" }}>
+        <div className="fade-rise flex items-center gap-2 mt-5 text-[12px] text-zinc-500" style={{ animationDelay: "820ms" }}>
           <span className="text-amber-400 tracking-tight">★★★★★</span>
           <span className="text-zinc-300">•</span>
           <TrustStat />
         </div>
 
         {/* CTAs */}
-        <div className="fade-rise w-full flex flex-col items-center gap-3 mt-7" style={{ animationDelay: "920ms" }}>
+        <div className="fade-rise w-full flex flex-col items-center gap-5 mt-7" style={{ animationDelay: "920ms" }}>
           {firstCategoryId && (
             <Link
               href="/collections"
