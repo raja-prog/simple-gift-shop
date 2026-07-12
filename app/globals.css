@@ -276,9 +276,10 @@ button { cursor: pointer; }
 /* Premium nav */
 .nav-logo {
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-size: clamp(1.35rem, 2vw, 1.5rem);
   font-weight: 500;
   letter-spacing: -0.02em;
+  color: #18181b;
 }
 .nav-link {
   position: relative;
@@ -328,6 +329,34 @@ main { animation: page-in 0.3s ease both; }
 }
 
 /* ── Premium animation system ─────────────────────────────── */
+
+/* ── Admin form fields (mobile-friendly) ─────────────────── */
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.admin-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #52525b;
+}
+.admin-input {
+  width: 100%;
+  border-radius: 0.6rem;
+  border: 1px solid var(--gift-border);
+  background: var(--gift-bg-alt);
+  padding: 0.75rem 0.85rem;
+  font-size: 16px; /* prevents iOS auto-zoom on focus */
+  color: #18181b;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.admin-input::placeholder { color: #a1a1aa; }
+.admin-input:focus {
+  outline: none;
+  border-color: var(--gift-accent);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15);
+}
 
 /* ── Consistent page shell ─────────────────────────────── */
 .page-shell {
@@ -927,6 +956,8 @@ main { animation: page-in 0.3s ease both; }
 .hero-doodles {
   position: relative;
   z-index: 0;
+  width: 100%;
+  max-width: min(92vw, 600px);
   margin: 0 auto 0.5rem;
   pointer-events: none;
   display: flex;
@@ -936,7 +967,6 @@ main { animation: page-in 0.3s ease both; }
 .hero-scene {
   display: block;
   width: 100%;
-  max-width: 560px;
   height: auto;
   margin: 0 auto;
 }

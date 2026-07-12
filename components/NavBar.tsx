@@ -48,7 +48,7 @@ export function NavBar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="w-full px-5 md:px-8 py-3 lg:py-5 flex items-center justify-between gap-4">
+      <div className="w-full px-5 md:px-8 py-4 lg:py-5 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-baseline gap-1.5 group cursor-grow" aria-label={STORE_NAME}>
           <span className="nav-logo text-zinc-900 leading-none transition-opacity group-hover:opacity-70">
             <span className="md:hidden">{MOBILE_STORE_NAME}</span>

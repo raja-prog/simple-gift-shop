@@ -126,7 +126,7 @@ export function HeroDoodles() {
     <div className="hero-doodles lg:hidden" aria-hidden="true">
       <svg
         className={`hero-scene ${visible ? "scene-in" : "scene-out"}`}
-        viewBox="0 0 360 210"
+        viewBox="46 30 268 176"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         key={i}
