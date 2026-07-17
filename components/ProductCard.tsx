@@ -1,24 +1,19 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Product } from "@/data/store";
 import { cleanImageUrl, isDisplayableRemote, isApiImage } from "@/lib/image";
-import { buildWhatsAppLink, buildOrderMessage } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/format";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { OrderSheet } from "@/components/OrderHelper";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850"; // Replace
 
 export function ProductCard({ product }: { product: Product }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const [orderOpen, setOrderOpen] = useState(false);
   const cleaned = cleanImageUrl(product.image);
-  const message = buildOrderMessage({
-    name: product.name,
-    price: Number(product.price),
-    productPath: `/product/${product.id}`,
-  });
-  const waLink = buildWhatsAppLink(WHATSAPP_NUMBER, message);
   const shortDesc = (product.description || "").split('\n').map(l => l.trim()).filter(Boolean)[0] || "";
 
   function handleMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -86,21 +81,26 @@ export function ProductCard({ product }: { product: Product }) {
 
           <div className="mt-3 flex items-center justify-between gap-2">
             <span className="text-base font-bold text-zinc-900">{formatPrice(Number(product.price))}</span>
-            {waLink ? (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full font-semibold bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors duration-200"
-              >
-                <WhatsAppIcon size={14} /> Order
-              </a>
-            ) : (
-              <span className="text-[11px] text-tertiary italic">Invalid number</span>
-            )}
+            <button
+              type="button"
+              onClick={() => setOrderOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full font-semibold bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors duration-200"
+            >
+              <WhatsAppIcon size={14} /> Order
+            </button>
           </div>
         </div>
       </div>
+
+      <OrderSheet
+        open={orderOpen}
+        onClose={() => setOrderOpen(false)}
+        number={WHATSAPP_NUMBER}
+        name={product.name}
+        productId={product.id}
+        price={Number(product.price)}
+        productPath={`/product/${product.id}`}
+      />
     </div>
   );
 }

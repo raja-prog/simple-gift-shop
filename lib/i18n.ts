@@ -21,6 +21,13 @@ const en: Dict = {
   "common.continueOnWhatsapp": "Continue on WhatsApp",
   "common.back": "Back",
 
+  "home.featured": "Featured pieces",
+  "home.tapToOrder": "Tap 💬 to order",
+  "home.collections": "Collections",
+  "home.collectionOne": "collection",
+  "home.collectionMany": "collections",
+  "home.noCollections": "New collections coming soon — message us on WhatsApp for custom orders.",
+
   "how.eyebrow": "How ordering works",
   "how.title": "Three simple steps",
   "how.subtitle":
@@ -57,6 +64,13 @@ const ta: Dict = {
   "common.orderOnWhatsapp": "WhatsApp-ல் ஆர்டர் செய்யுங்கள்",
   "common.continueOnWhatsapp": "WhatsApp-ல் தொடரவும்",
   "common.back": "பின்செல்",
+
+  "home.featured": "சிறப்பு பொருட்கள்",
+  "home.tapToOrder": "ஆர்டர் செய்ய 💬 தட்டவும்",
+  "home.collections": "தொகுப்புகள்",
+  "home.collectionOne": "தொகுப்பு",
+  "home.collectionMany": "தொகுப்புகள்",
+  "home.noCollections": "புதிய தொகுப்புகள் விரைவில் — விருப்ப ஆர்டர்களுக்கு WhatsApp-ல் தொடர்பு கொள்ளுங்கள்.",
 
   "how.eyebrow": "ஆர்டர் செய்வது எப்படி",
   "how.title": "மூன்று எளிய படிகள்",

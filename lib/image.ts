@@ -67,12 +67,18 @@ function isBase64Data(raw: string | undefined | null): boolean {
 
 export function productImageSrc(raw: string | undefined | null, productId: string): string | undefined {
   if (isBase64Data(raw)) return `/api/images/product/${encodeURIComponent(productId)}`;
-  return normalizeImageUrl(raw);
-}
+  return normalizeImageUrl(raw);}
 
 export function galleryImageSrc(raw: string | undefined | null, imageId: string): string | undefined {
   if (isBase64Data(raw)) return `/api/images/gallery/${encodeURIComponent(imageId)}`;
   return normalizeImageUrl(raw);
+}
+
+// Presence-only resolver for list pages. Avoids transferring huge base64 blobs from
+// the DB just to render a thumbnail: the query selects a cheap "has image" flag, and
+// we always route through the image API (which serves base64 or redirects remote).
+export function listImageSrc(hasImage: boolean, productId: string): string | undefined {
+  return hasImage ? `/api/images/product/${encodeURIComponent(productId)}` : undefined;
 }
 
 // True when the src can be rendered directly: our own image API path or an allowed remote host.

@@ -164,8 +164,8 @@ export function HeroSection({ firstCategoryId }: { firstCategoryId?: string }) {
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <div className="fade-rise hidden md:flex items-center gap-3 mt-16" style={{ animationDelay: "1150ms" }}>
+      {/* Scroll cue — pinned to hero bottom so it stays put regardless of content height */}
+      <div className="fade-rise hidden md:flex items-center gap-3 absolute bottom-8 left-0" style={{ animationDelay: "1150ms" }}>
         <span className="scroll-cue" aria-hidden="true" />
         <span className="text-[11px] tracking-[0.25em] uppercase text-zinc-400">Scroll to explore</span>
       </div>
