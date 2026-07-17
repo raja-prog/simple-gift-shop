@@ -72,8 +72,17 @@ export async function GET(
       "Content-Type": contentType,
       "Content-Length": String(buffer.byteLength),
       ETag: etag,
-      // Cache at the CDN/browser; ETag lets edits refresh within the hour.
+      // Browser cache (per-visitor).
       "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      // Netlify edge CDN cache: this is what keeps the serverless FUNCTION from
+      // being re-invoked on every request. `durable` persists the cached bytes
+      // across CDN nodes and deploys, so with a 1-hour TTL each image is fetched
+      // from the DB at most ~once per hour instead of on every single page view.
+      // That caps function invocations to roughly (#images) per hour regardless
+      // of traffic — the key to staying inside the free-tier quota — while admin
+      // image edits still become visible within the hour (stale-while-revalidate
+      // serves the old bytes meanwhile so users never wait).
+      "Netlify-CDN-Cache-Control": "public, durable, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }
