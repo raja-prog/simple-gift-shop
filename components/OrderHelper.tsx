@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { buildWhatsAppLink, buildDetailedOrderMessage, type OrderHelperDetails } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { formatPrice } from "@/lib/format";
@@ -42,19 +43,44 @@ export function OrderSheet({
   const qty = details.quantity || 1;
   const setQty = (n: number) => set({ quantity: Math.min(MAX_QTY, Math.max(1, Math.round(n) || 1)) });
 
-  // Lock background scroll while the sheet is open.
+  // Lock background scroll while the sheet is open, preserving scroll position.
+  // Uses the position:fixed technique because the window (not <body>) is the
+  // scroller here, and body already has `overflow-x: hidden` in CSS — toggling
+  // the `overflow` shorthand would clobber that and leave the page stuck.
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
     return () => {
-      document.body.style.overflow = prev;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
   if (!open) return null;
 
-  return (
+  // Render into <body> via a portal so the modal escapes any transformed
+  // ancestor (e.g. the tilt product cards). A CSS transform on a parent makes
+  // position:fixed anchor to that parent, which would trap the sheet inside the card.
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -223,7 +249,8 @@ export function OrderSheet({
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
