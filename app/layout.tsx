@@ -51,7 +51,7 @@ export default function RootLayout({
         <LanguageProvider>
           <ClientDecor />
           <NavBar />
-          <main className="flex-1 relative z-10">
+          <main className="flex-1 relative">
             {children}
           </main>
           <FloatingWhatsApp />

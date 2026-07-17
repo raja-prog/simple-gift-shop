@@ -700,7 +700,7 @@ main { animation: page-in 0.3s ease both; }
   align-items: center;
   justify-content: center;
   background: #fbf9f7;
-  z-index: 50;
+  z-index: 100;
 }
 .gift-loader-inner {
   position: relative;
