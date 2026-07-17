@@ -31,3 +31,44 @@ export function buildOrderMessage(opts: {
   const linkLine = link ? `\n${link}` : "";
   return `Hi Divs Aesthetix! I'd like to order "${name}".${priceLine}${linkLine}\n\nIs it available? 😊`;
 }
+
+// Rich order details captured by the on-page Order Helper before opening WhatsApp.
+// Every field is optional so the message stays clean when the buyer skips some.
+export interface OrderHelperDetails {
+  occasion?: string;
+  recipient?: string;
+  neededBy?: string; // ISO date or free text
+  pincode?: string;
+  personalization?: string;
+  quantity?: number;
+}
+
+// Builds a detailed pre-filled message that collapses the owner's usual Q&A
+// (occasion, recipient, date, pincode, personalization, quantity) into one message.
+export function buildDetailedOrderMessage(opts: {
+  name: string;
+  productId?: string;
+  price?: number;
+  productPath?: string;
+  details?: OrderHelperDetails;
+}): string {
+  const { name, productId, price, productPath, details } = opts;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+  const link = productPath ? `${base}${productPath}` : "";
+
+  const qty = details?.quantity && details.quantity > 0 ? details.quantity : 1;
+  const idPart = productId ? ` (${productId})` : "";
+  const pricePart = typeof price === "number" ? ` — ₹${price.toLocaleString("en-IN")}` : "";
+  const header = `Hi Divs Aesthetix! Order: ${name}${idPart} ×${qty}${pricePart}.`;
+
+  const lines: string[] = [];
+  if (details?.occasion) lines.push(`Occasion: ${details.occasion}`);
+  if (details?.recipient) lines.push(`For: ${details.recipient}`);
+  if (details?.neededBy) lines.push(`Needed by: ${details.neededBy}`);
+  if (details?.pincode) lines.push(`Deliver to: ${details.pincode}`);
+  if (details?.personalization) lines.push(`Personalize: ${details.personalization}`);
+
+  const detailBlock = lines.length ? `\n${lines.join("\n")}` : "";
+  const linkLine = link ? `\n${link}` : "";
+  return `${header}${detailBlock}${linkLine}\n\nIs this doable? 😊`;
+}

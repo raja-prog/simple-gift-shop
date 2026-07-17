@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { useLang } from "@/components/LanguageProvider";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Divs Aesthetix Store";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850";
@@ -12,6 +14,7 @@ const MOBILE_STORE_NAME = STORE_NAME.replace(/\s*Store\s*$/i, "");
 interface Category { id: string; name: string; }
 
 export function NavBar() {
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [cats, setCats] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,7 +61,8 @@ export function NavBar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/collections" prefetch className="nav-link">Collections</Link>
+          <Link href="/collections" prefetch className="nav-link">{t("nav.collections")}</Link>
+          <LanguageToggle />
           {waLink && (
             <a
               href={waLink}
@@ -67,16 +71,18 @@ export function NavBar() {
               className="group inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20BA5A] rounded-full px-4 py-2 transition-colors cursor-grow"
             >
               <WhatsAppIcon size={16} />
-              <span>Order</span>
+              <span>{t("nav.order")}</span>
             </a>
           )}
         </div>
 
+        <div className="md:hidden flex items-center gap-3">
+        <LanguageToggle />
         <button
           aria-label="Toggle navigation"
           aria-expanded={open}
           onClick={() => setOpen(o => !o)}
-          className="md:hidden inline-flex items-center gap-2 text-sm font-medium text-zinc-900"
+          className="inline-flex items-center gap-2 text-sm font-medium text-zinc-900"
         >
           <span className="flex flex-col gap-[5px]">
             <span className={`h-[1.5px] w-5 bg-zinc-900 transition-transform ${open ? "translate-y-[6.5px] rotate-45" : ""}`} />
@@ -84,13 +90,14 @@ export function NavBar() {
             <span className={`h-[1.5px] w-5 bg-zinc-900 transition-transform ${open ? "-translate-y-[6.5px] -rotate-45" : ""}`} />
           </span>
         </button>
+        </div>
       </div>
 
       {/* Mobile panel */}
       {open && (
         <div className="md:hidden px-5 pb-5 bg-white/95 backdrop-blur-xl border-t border-zinc-200">
           <div className="flex flex-col gap-4 py-4">
-            <Link onClick={() => setOpen(false)} href="/collections" className="text-lg font-medium text-zinc-900">Collections</Link>
+            <Link onClick={() => setOpen(false)} href="/collections" className="text-lg font-medium text-zinc-900">{t("nav.collections")}</Link>
             {waLink && (
               <a
                 href={waLink}
@@ -99,7 +106,7 @@ export function NavBar() {
                 onClick={() => setOpen(false)}
                 className="inline-flex items-center justify-center gap-2 text-base font-semibold text-white bg-[#25D366] hover:bg-[#20BA5A] rounded-full px-5 py-3 transition-colors"
               >
-                <WhatsAppIcon size={18} /> Order
+                <WhatsAppIcon size={18} /> {t("nav.order")}
               </a>
             )}
             <div className="pt-3 border-t border-zinc-200">

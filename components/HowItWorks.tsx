@@ -1,36 +1,26 @@
+"use client";
 import { RevealGrid } from "@/components/RevealGrid";
-
-const STEPS: { icon: string; title: string; body: string }[] = [
-  {
-    icon: "💬",
-    title: "Chat on WhatsApp",
-    body: "Tap “Order”, send us the gift you like and who it’s for. No account or app needed.",
-  },
-  {
-    icon: "🎨",
-    title: "Personalise together",
-    body: "Share names, dates, photos or colours. We confirm the design and the final price with you.",
-  },
-  {
-    icon: "📦",
-    title: "Handmade & delivered",
-    body: "We handcraft your keepsake and ship it to your doorstep, ready to gift.",
-  },
-];
+import { useLang } from "@/components/LanguageProvider";
 
 export function HowItWorks() {
+  const { t } = useLang();
+  const STEPS: { icon: string; title: string; body: string }[] = [
+    { icon: "💬", title: t("how.step1Title"), body: t("how.step1Body") },
+    { icon: "🎨", title: t("how.step2Title"), body: t("how.step2Body") },
+    { icon: "📦", title: t("how.step3Title"), body: t("how.step3Body") },
+  ];
+
   return (
     <section className="space-y-8">
       <div className="text-center max-w-xl mx-auto">
         <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-pink-500">
-          How ordering works
+          {t("how.eyebrow")}
         </span>
         <h2 className="mt-2 editorial-display !text-[clamp(1.6rem,4vw,2.4rem)] leading-[1.1]">
-          Three simple steps
+          {t("how.title")}
         </h2>
         <p className="mt-3 text-sm md:text-base text-secondary leading-relaxed">
-          Every gift is made to order and arranged over a quick WhatsApp chat —
-          no checkout, no waiting on hold.
+          {t("how.subtitle")}
         </p>
       </div>
 
@@ -45,7 +35,7 @@ export function HowItWorks() {
                 {s.icon}
               </span>
               <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-pink-500">
-                Step {i + 1}
+                {t("how.step")} {i + 1}
               </span>
             </div>
             <h3 className="text-base font-semibold text-zinc-900">{s.title}</h3>

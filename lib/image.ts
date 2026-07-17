@@ -55,6 +55,38 @@ export function isDisplayableRemote(raw: string | undefined | null): boolean {
 // Backwards compatibility exports
 export const cleanImageUrl = normalizeImageUrl;
 
+// ---- Base64 → cacheable API-URL resolution (zero new infrastructure) ----
+// Product images uploaded via admin are stored as base64 data-URIs in Postgres.
+// Embedding those blobs in page HTML is slow on mobile, so at each DB read site we
+// swap a base64 value for a short `/api/images/...` URL that streams the same bytes
+// with cache headers. Remote URLs are returned untouched.
+
+function isBase64Data(raw: string | undefined | null): boolean {
+  return typeof raw === "string" && raw.startsWith("data:image/");
+}
+
+export function productImageSrc(raw: string | undefined | null, productId: string): string | undefined {
+  if (isBase64Data(raw)) return `/api/images/product/${encodeURIComponent(productId)}`;
+  return normalizeImageUrl(raw);
+}
+
+export function galleryImageSrc(raw: string | undefined | null, imageId: string): string | undefined {
+  if (isBase64Data(raw)) return `/api/images/gallery/${encodeURIComponent(imageId)}`;
+  return normalizeImageUrl(raw);
+}
+
+// True when the src can be rendered directly: our own image API path or an allowed remote host.
+export function isServableImage(src: string | undefined | null): boolean {
+  if (!src) return false;
+  if (src.startsWith("/api/images/")) return true;
+  return isDisplayableRemote(src);
+}
+
+// True when the src should bypass next/image optimization (already-sized bytes from our API).
+export function isApiImage(src: string | undefined | null): boolean {
+  return typeof src === "string" && src.startsWith("/api/images/");
+}
+
 /**
  * Compress/resize an image File in the browser using a canvas.
  * Returns a smaller data URL. Falls back to the original on any failure.

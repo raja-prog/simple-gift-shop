@@ -52,7 +52,7 @@ export function CategoryCard({ category, previews = [] }: { category: CategoryTy
           {limited.length > 0 && (
             <div className="mt-3 grid grid-cols-2 gap-2 tilt-layer" style={{ ["--z" as string]: "60px" }}>
               {limited.map(p => {
-                const show = p.image && (p.image.startsWith('data:') || /^https?:\/\//.test(p.image));
+                const show = p.image && (p.image.startsWith('data:') || p.image.startsWith('/api/images/') || /^https?:\/\//.test(p.image));
                 return (
                   <div
                     key={p.id}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { buildWhatsAppLink, buildDetailedOrderMessage } from "@/lib/whatsapp";
 
 describe("buildWhatsAppLink", () => {
   it("builds a wa.me link with encoded message", () => {
@@ -49,3 +49,46 @@ describe("buildWhatsAppLink", () => {
     expect(query).not.toContain("data:image/png;base64,AAAA");
   });
 });
+
+describe("buildDetailedOrderMessage", () => {
+  it("includes name, id, quantity and price in the header", () => {
+    const msg = buildDetailedOrderMessage({
+      name: "14 Gift Hamper",
+      productId: "D-005",
+      price: 2500,
+      details: { quantity: 2 },
+    });
+    expect(msg).toContain("14 Gift Hamper (D-005) ×2 — ₹2,500");
+  });
+
+  it("defaults quantity to 1 when not provided", () => {
+    const msg = buildDetailedOrderMessage({ name: "Frame", productId: "D-001" });
+    expect(msg).toContain("×1");
+  });
+
+  it("appends captured helper details as labelled lines", () => {
+    const msg = buildDetailedOrderMessage({
+      name: "Frame",
+      productId: "D-001",
+      details: {
+        occasion: "Anniversary",
+        recipient: "Her",
+        neededBy: "2026-08-24",
+        pincode: "600042",
+        personalization: "A ♥ R",
+      },
+    });
+    expect(msg).toContain("Occasion: Anniversary");
+    expect(msg).toContain("For: Her");
+    expect(msg).toContain("Needed by: 2026-08-24");
+    expect(msg).toContain("Deliver to: 600042");
+    expect(msg).toContain("Personalize: A ♥ R");
+  });
+
+  it("omits detail lines that are not provided", () => {
+    const msg = buildDetailedOrderMessage({ name: "Frame", productId: "D-001" });
+    expect(msg).not.toContain("Occasion:");
+    expect(msg).not.toContain("Deliver to:");
+  });
+});
+

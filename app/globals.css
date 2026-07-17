@@ -41,7 +41,11 @@ body {
   margin: 0;
   padding: 0;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: hidden;}
+
+/* Tamil language: prefer the Tamil webfont while keeping Latin fallbacks. */
+html[lang="ta"] body {
+  font-family: var(--font-tamil), var(--font-sans), system-ui, sans-serif;
 }
 
 /* Cream base behind the WebGL gradient so there is no white flash on first paint (esp. mobile) */

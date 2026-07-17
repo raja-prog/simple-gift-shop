@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { productImageSrc } from "@/lib/image";
 import { CategoryCard } from "@/components/CategoryCard";
 import Link from "next/link";
 
@@ -58,7 +59,7 @@ export default async function CollectionsPage() {
             <CategoryCard
               key={c.id}
               category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-              previews={c.products.map((p: (typeof c.products)[number]) => ({ id: p.id, name: p.name, image: p.image }))}
+              previews={c.products.map((p: (typeof c.products)[number]) => ({ id: p.id, name: p.name, image: productImageSrc(p.image, p.id) || "" }))}
             />
           ))}
         </div>

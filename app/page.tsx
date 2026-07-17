@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { productImageSrc } from "@/lib/image";
 import { CategoryCard } from "@/components/CategoryCard";
 import { HeroSection } from "@/components/HeroSection";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -55,7 +56,7 @@ export default async function Home() {
                     id: p.id,
                     name: p.name,
                     description: p.description || "",
-                    image: p.image,
+                    image: productImageSrc(p.image, p.id) || "",
                     price: Number(p.price),
                     categoryId: p.categoryId,
                   }}
@@ -88,7 +89,7 @@ export default async function Home() {
               <CategoryCard
                 key={c.id}
                 category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-                previews={c.products.map(p => ({ id: p.id, name: p.name, image: p.image }))}
+                previews={c.products.map(p => ({ id: p.id, name: p.name, image: productImageSrc(p.image, p.id) || "" }))}
               />
             ))}
           </RevealGrid>

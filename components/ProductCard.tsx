@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import type { Product } from "@/data/store";
-import { cleanImageUrl, isDisplayableRemote } from "@/lib/image";
+import { cleanImageUrl, isDisplayableRemote, isApiImage } from "@/lib/image";
 import { buildWhatsAppLink, buildOrderMessage } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/format";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
@@ -58,11 +58,13 @@ export function ProductCard({ product }: { product: Product }) {
                 loading="lazy"
                 priority={false}
               />
-            ) : cleaned && cleaned.startsWith('data:') ? (
+            ) : cleaned && isApiImage(cleaned) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={cleaned}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
               />
             ) : (

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
+import { productImageSrc, galleryImageSrc } from "@/lib/image";
 
 export const revalidate = 60; // Cache for 60 seconds
 
@@ -50,12 +51,15 @@ export default async function CategoryPage({ params }: PageProps) {
     ? await prisma.productImage.findMany({
         where: { productId: { in: productIds } },
         orderBy: { order: "asc" },
-        select: { productId: true, url: true, order: true },
+        select: { id: true, productId: true, url: true, order: true },
       })
     : [];
   const firstImageByProduct = new Map<string, string>();
   for (const img of galleryImages) {
-    if (!firstImageByProduct.has(img.productId)) firstImageByProduct.set(img.productId, img.url);
+    if (!firstImageByProduct.has(img.productId)) {
+      const resolved = galleryImageSrc(img.url, img.id);
+      if (resolved) firstImageByProduct.set(img.productId, resolved);
+    }
   }
 
   return (
@@ -76,7 +80,7 @@ export default async function CategoryPage({ params }: PageProps) {
               id: p.id,
               name: p.name,
               description: p.description || "",
-              image: firstImageByProduct.get(p.id) || p.image,
+              image: firstImageByProduct.get(p.id) || productImageSrc(p.image, p.id) || "",
               price: Number(p.price),
               categoryId: p.categoryId,
             }}

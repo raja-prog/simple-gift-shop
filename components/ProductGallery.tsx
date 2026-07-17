@@ -1,16 +1,16 @@
 "use client";
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { isDisplayableRemote } from "@/lib/image";
+import { isServableImage, isApiImage } from "@/lib/image";
 
 type Img = { url: string; alt?: string | null };
 
 export function ProductGallery({ primary, images, alt }: { primary?: string; images: Img[]; alt: string }) {
   const list = useMemo(() => {
     const arr: Img[] = [];
-    if (primary && isDisplayableRemote(primary)) arr.push({ url: primary, alt });
+    if (primary && isServableImage(primary)) arr.push({ url: primary, alt });
     for (const img of images) {
-      if (img?.url && isDisplayableRemote(img.url)) arr.push({ url: img.url, alt: img.alt ?? alt });
+      if (img?.url && isServableImage(img.url)) arr.push({ url: img.url, alt: img.alt ?? alt });
     }
     // de-dup by URL
     const seen = new Set<string>();
@@ -45,6 +45,7 @@ export function ProductGallery({ primary, images, alt }: { primary?: string; ima
           className="object-cover"
           quality={80}
           priority={true}
+          unoptimized={isApiImage(current.url)}
         />
       </div>
       {list.length > 1 && (
@@ -56,7 +57,7 @@ export function ProductGallery({ primary, images, alt }: { primary?: string; ima
               className={`relative w-16 h-16 rounded-md overflow-hidden border ${i === index ? 'border-pink-500' : 'border-[var(--gift-border)]'}`}
               aria-label={`View image ${i+1}`}
             >
-              <Image src={img.url} alt={img.alt || alt} fill sizes="64px" className="object-cover" />
+              <Image src={img.url} alt={img.alt || alt} fill sizes="64px" className="object-cover" unoptimized={isApiImage(img.url)} />
             </button>
           ))}
         </div>
