@@ -31,7 +31,8 @@ export async function PUT(req: Request, ctx: { params: ParamShape }) {
         description: body.description ?? null,
         image: body.image,
         price: priceValue,
-        categoryId: body.categoryId
+        categoryId: body.categoryId,
+        featured: body.featured === undefined ? undefined : !!body.featured
       }
     });
     // Replace extra images if provided

@@ -1,5 +1,9 @@
 [build]
-  command = "npm run build"
+  # Apply any pending Prisma migrations to the production DB, then build.
+  # `migrate deploy` only runs migrations not yet recorded in the DB, so the
+  # actual schema change executes once (first deploy after it's added) and is a
+  # fast no-op on every deploy after that.
+  command = "npx prisma migrate deploy && npm run build"
   publish = ".next"
 
 # Official Next.js runtime for Netlify (SSR, ISR, API routes, on-demand revalidation)

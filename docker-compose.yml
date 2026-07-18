@@ -1,0 +1,24 @@
+# Local throwaway Postgres for development and tests ONLY.
+# Matches the DATABASE_URL in .env and playwright.config.ts (port 5433).
+# Never point this at production data.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: giftshop-test-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gift
+      POSTGRES_PASSWORD: giftpass
+      POSTGRES_DB: giftshop
+    ports:
+      - "5433:5432"
+    volumes:
+      - giftshop-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gift -d giftshop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  giftshop-pgdata:

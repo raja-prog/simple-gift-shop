@@ -13,7 +13,9 @@ const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850";
 export function ProductCard({ product }: { product: Product }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const cleaned = cleanImageUrl(product.image);
+  const hasImage = !!cleaned && (isDisplayableRemote(cleaned) || isApiImage(cleaned));
   const shortDesc = (product.description || "").split('\n').map(l => l.trim()).filter(Boolean)[0] || "";
 
   function handleMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -40,15 +42,15 @@ export function ProductCard({ product }: { product: Product }) {
       <div ref={cardRef} className="tilt-card !p-3 flex flex-col" onMouseMove={handleMove} onMouseLeave={handleLeave}>
         <span className="tilt-glare" aria-hidden="true" />
         <Link href={`/product/${product.id}`} prefetch className="block group tilt-layer" style={{ ["--z" as string]: "50px" }}>
-          <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 skeleton">
+          <div className={`relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 ${hasImage && !imgLoaded ? "skeleton" : ""}`}>
             {cleaned && isDisplayableRemote(cleaned) ? (
               <Image
                 src={cleaned}
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-0 data-[loaded=true]:opacity-100 transition-all duration-700 group-hover:scale-[1.06]"
-                onLoad={(e) => e.currentTarget.setAttribute('data-loaded','true')}
+                className={`object-cover transition-all duration-700 group-hover:scale-[1.06] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setImgLoaded(true)}
                 quality={72}
                 loading="lazy"
                 priority={false}
@@ -60,7 +62,9 @@ export function ProductCard({ product }: { product: Product }) {
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                onLoad={() => setImgLoaded(true)}
+                ref={(node) => { if (node?.complete) setImgLoaded(true); }}
+                className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.06] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-pink-50 to-purple-50 gap-2">

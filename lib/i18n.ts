@@ -22,7 +22,6 @@ const en: Dict = {
   "common.back": "Back",
 
   "home.featured": "Featured pieces",
-  "home.tapToOrder": "Tap 💬 to order",
   "home.collections": "Collections",
   "home.collectionOne": "collection",
   "home.collectionMany": "collections",
@@ -66,7 +65,6 @@ const ta: Dict = {
   "common.back": "பின்செல்",
 
   "home.featured": "சிறப்பு பொருட்கள்",
-  "home.tapToOrder": "ஆர்டர் செய்ய 💬 தட்டவும்",
   "home.collections": "தொகுப்புகள்",
   "home.collectionOne": "தொகுப்பு",
   "home.collectionMany": "தொகுப்புகள்",

@@ -1,4 +1,5 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
@@ -7,12 +8,15 @@ const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850";
 // Persistent floating WhatsApp button shown on every page. Positioned to clear
 // the mobile bottom order bars (home / product) so it never overlaps them.
 export function FloatingWhatsApp() {
+  const pathname = usePathname();
   const waLink = buildWhatsAppLink(
     WHATSAPP_NUMBER,
     "Hi Divs Aesthetix! I'd like to order a handcrafted gift. Could you help me? 😊"
   );
 
   if (!waLink) return null;
+  // Hidden in the admin panel, where a fixed button would overlap form controls.
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <a

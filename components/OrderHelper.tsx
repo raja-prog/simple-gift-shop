@@ -155,16 +155,16 @@ export function OrderSheet({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <label className="block">
+            <label className="block min-w-0">
               <span className="text-xs font-medium text-zinc-600">{t("order.neededBy")}</span>
               <input
                 type="date"
                 value={details.neededBy || ""}
                 onChange={(e) => set({ neededBy: e.target.value || undefined })}
-                className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-sm focus:border-pink-400 focus:outline-none"
+                className="mt-1 w-full min-w-0 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm focus:border-pink-400 focus:outline-none"
               />
             </label>
-            <label className="block">
+            <label className="block min-w-0">
               <span className="text-xs font-medium text-zinc-600">{t("order.pincode")}</span>
               <input
                 type="text"
@@ -173,7 +173,7 @@ export function OrderSheet({
                 placeholder="600042"
                 value={details.pincode || ""}
                 onChange={(e) => set({ pincode: e.target.value.replace(/[^0-9]/g, "") || undefined })}
-                className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-sm focus:border-pink-400 focus:outline-none"
+                className="mt-1 w-full min-w-0 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm focus:border-pink-400 focus:outline-none"
               />
             </label>
           </div>

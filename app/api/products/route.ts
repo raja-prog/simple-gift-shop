@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Product id already exists' }, { status: 409 });
     }
     const priceValue = typeof data.price === 'string' ? parseFloat(data.price) : data.price;
-    const created = await prisma.product.create({ data: { id: data.id, name: data.name, description: data.description || null, image: data.image || 'https://placehold.co/600x600', price: priceValue, categoryId: data.categoryId } });
+    const created = await prisma.product.create({ data: { id: data.id, name: data.name, description: data.description || null, image: data.image || 'https://placehold.co/600x600', price: priceValue, categoryId: data.categoryId, featured: !!data.featured } });
     // Optional extra images array: [{ url, alt?, order? }] or [string]
     if (Array.isArray(data.images)) {
       const imagesPayload = (data.images as Array<ImageInput>)

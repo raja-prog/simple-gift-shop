@@ -314,8 +314,11 @@ button { cursor: pointer; }
 /* Smooth scroll */
 html { scroll-behavior: smooth; }
 
-/* Page fade-in */
-main { animation: page-in 0.3s ease both; }
+/* Page fade-in (applied to page content, not <main> itself, so a lingering
+   transform on <main> can't become the containing block for the fixed
+   full-screen loader — which would otherwise trap it inside the main area and
+   leave the navbar/footer visible during route loading). */
+main > *:not(.gift-loader) { animation: page-in 0.3s ease both; }
 @keyframes page-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -391,6 +394,12 @@ main { animation: page-in 0.3s ease both; }
   will-change: opacity;
 }
 .heart3d-fixed.is-ready { opacity: 1; }
+/* react-three-fiber re-enables pointer events with an inline style on its own
+   canvas wrapper, which defeats the `pointer-events: none` on the container
+   above. Force the whole decorative subtree to ignore the pointer so this
+   fixed, right-side overlay never steals clicks from real UI underneath it
+   (e.g. the admin list's Delete/Edit buttons on desktop). */
+.heart3d-fixed * { pointer-events: none !important; }
 .heart3d-fixed canvas { display: block; max-width: 100%; }
 @media (max-width: 767px) {
   .heart3d-fixed {
@@ -831,7 +840,10 @@ main { animation: page-in 0.3s ease both; }
   top: 50%;
   transform: translateY(-50%);
 }
-.btn-premium--block:hover .btn-premium-chip {
+/* Keep the higher specificity than `.btn-premium:hover .btn-premium-chip` below
+   so the chip retains its translateY(-50%) centering on hover (otherwise it
+   drops to the bottom of the button). */
+.btn-premium.btn-premium--block:hover .btn-premium-chip {
   transform: translateY(-50%) rotate(45deg) scale(1.05);
 }
 .btn-premium-chip {
@@ -905,8 +917,8 @@ main { animation: page-in 0.3s ease both; }
 /* Stagger grid children */
 .stagger-grid > * {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .stagger-grid.revealed > *:nth-child(1)  { transition-delay: 0ms; }
 .stagger-grid.revealed > *:nth-child(2)  { transition-delay: 60ms; }
@@ -921,9 +933,38 @@ main { animation: page-in 0.3s ease both; }
 .stagger-grid.revealed > *:nth-child(n+11) { transition-delay: 600ms; }
 .stagger-grid.revealed > * { opacity: 1; transform: translateY(0); }
 
+/* Mobile (2-column grid): reveal row by row — both cards in a row appear
+   together, then each row cascades. Cumulative :nth-child(n+K) selectors (equal
+   specificity, later rule wins) give each pair the same delay. */
+@media (max-width: 639.98px) {
+  .stagger-grid.revealed > *:nth-child(n)    { transition-delay: 0ms; }
+  .stagger-grid.revealed > *:nth-child(n+3)  { transition-delay: 110ms; }
+  .stagger-grid.revealed > *:nth-child(n+5)  { transition-delay: 220ms; }
+  .stagger-grid.revealed > *:nth-child(n+7)  { transition-delay: 330ms; }
+  .stagger-grid.revealed > *:nth-child(n+9)  { transition-delay: 440ms; }
+  .stagger-grid.revealed > *:nth-child(n+11) { transition-delay: 550ms; }
+}
+
+/* Continuous floating cards — a premium touch for the featured section. The
+   reveal transform sits on the grid child; the float sits on an inner wrapper
+   so the two never fight over `transform`. */
+@keyframes card-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.card-float {
+  animation: card-float 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+/* Settle the card while the visitor interacts with it (lets the hover tilt shine). */
+.card-float:hover { animation-play-state: paused; }
+/* Stop the float from ticking while its section is scrolled off-screen (saves GPU/battery). */
+.floats-paused .card-float { animation-play-state: paused; }
+
 /* Respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .card-float { animation: none !important; }
 }
 
 /* ── Rotating trust stat (Hello Monday masked slide-up) ─────── */

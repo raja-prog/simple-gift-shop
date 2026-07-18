@@ -9,7 +9,6 @@ export function FeaturedHeading() {
   return (
     <div className="flex items-baseline justify-between pb-4 md:pb-6 border-b border-zinc-200">
       <h2 className="h2-title text-high-contrast">{t("home.featured")}</h2>
-      <span className="text-micro">{t("home.tapToOrder")}</span>
     </div>
   );
 }

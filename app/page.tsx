@@ -5,7 +5,6 @@ import { HeroSection } from "@/components/HeroSection";
 import { HowItWorks } from "@/components/HowItWorks";
 import { ProductCard } from "@/components/ProductCard";
 import { Marquee } from "@/components/Marquee";
-import { StickyOrderBar } from "@/components/StickyOrderBar";
 import { RevealGrid } from "@/components/RevealGrid";
 import { FeaturedHeading, CollectionsHeading, NoCollectionsNote } from "@/components/HomeSections";
 
@@ -41,7 +40,7 @@ export default async function Home() {
       SELECT id, name, description, price, "categoryId",
              (image IS NOT NULL AND image <> '') AS "hasImage"
       FROM "Product"
-      ORDER BY "createdAt" DESC
+      ORDER BY featured DESC, "createdAt" DESC
       LIMIT 6
     `,
     prisma.$queryRaw<PreviewRow[]>`
@@ -79,19 +78,22 @@ export default async function Home() {
         <div className="page-shell !pt-10 md:!pt-20">
           <section id="featured" className="space-y-6 md:space-y-8">
             <FeaturedHeading />
-            <RevealGrid className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
-              {featured.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  product={{
-                    id: p.id,
-                    name: p.name,
-                    description: p.description || "",
-                    image: listImageSrc(p.hasImage, p.id) || "",
-                    price: Number(p.price),
-                    categoryId: p.categoryId,
-                  }}
-                />
+            <RevealGrid pauseFloatsOffscreen className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+              {featured.map((p, i) => (
+                <div key={p.id}>
+                  <div className="card-float" style={{ animationDelay: `${-(i % 4) * 0.7}s` }}>
+                    <ProductCard
+                      product={{
+                        id: p.id,
+                        name: p.name,
+                        description: p.description || "",
+                        image: listImageSrc(p.hasImage, p.id) || "",
+                        price: Number(p.price),
+                        categoryId: p.categoryId,
+                      }}
+                    />
+                  </div>
+                </div>
               ))}
             </RevealGrid>
           </section>
@@ -119,8 +121,6 @@ export default async function Home() {
           </RevealGrid>
         </section>
       </div>
-
-      <StickyOrderBar />
     </div>
   );
 }

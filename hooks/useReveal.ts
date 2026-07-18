@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-export function useReveal(threshold = 0.12) {
+export function useReveal(threshold = 0.12, rootMargin = "0px 0px -25% 0px") {
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -15,11 +15,11 @@ export function useReveal(threshold = 0.12) {
           obs.disconnect();
         }
       },
-      { threshold }
+      { threshold, rootMargin }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [threshold]);
+  }, [threshold, rootMargin]);
 
   return { ref, visible };
 }

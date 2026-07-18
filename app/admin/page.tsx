@@ -2,13 +2,12 @@
 import { useState, useEffect, Fragment } from "react";
 import Image from "next/image";
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "kundima123"; // MVP front-end only
-
 interface Category { id: string; name: string; description?: string | null; }
-interface Product { id: string; name: string; description?: string | null; image: string; price: number; categoryId: string; }
+interface Product { id: string; name: string; description?: string | null; image: string; price: number; categoryId: string; featured?: boolean; }
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [pw, setPw] = useState("");
   const [categoryForm, setCategoryForm] = useState<Partial<Category>>({});
   const [productForm, setProductForm] = useState<Partial<Product>>({});
@@ -26,6 +25,7 @@ export default function AdminPage() {
   // Mobile UX state
   const [showCategories, setShowCategories] = useState(true);
   const [showProducts, setShowProducts] = useState(true);
+  const [query, setQuery] = useState("");
 
   async function loadAll() {
     try {
@@ -41,7 +41,54 @@ export default function AdminPage() {
 
   useEffect(() => { if (authed) loadAll(); }, [authed]);
 
-  function authenticate(e: React.FormEvent) { e.preventDefault(); if (pw === ADMIN_PASSWORD) setAuthed(true); else alert("Incorrect password"); }
+  // Restore an existing admin session (httpOnly cookie) on load so a refresh
+  // doesn't drop the panel even though the server session is still valid.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/session');
+        if (!cancelled && res.ok) {
+          const body = await res.json();
+          if (body?.authed) setAuthed(true);
+        }
+      } catch { /* ignore network errors, fall back to login */ }
+      finally { if (!cancelled) setCheckingSession(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Verify the password against the server, which sets a signed httpOnly
+  // session cookie. Only that cookie authorises the mutating API routes.
+  async function authenticate(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) });
+      if (res.ok) { setAuthed(true); setPw(""); }
+      else if (res.status === 429) alert("Too many attempts. Please wait a minute.");
+      else alert("Incorrect password");
+    } catch {
+      alert("Login failed. Check your connection and try again.");
+    }
+  }
+
+  async function logout() {
+    try { await fetch('/api/admin/logout', { method: 'POST' }); } catch { /* ignore */ }
+    setAuthed(false);
+    setPw("");
+  }
+
+  // If a mutation is rejected because the session expired, drop back to the
+  // login screen instead of showing a generic failure.
+  function sessionExpired(res: Response): boolean {
+    if (res.status === 401) {
+      setAuthed(false);
+      alert("Your session expired. Please log in again.");
+      return true;
+    }
+    return false;
+  }
+
   function resetCategoryForm() { setCategoryForm({}); setEditingCategoryId(null); }
   function resetProductForm() { setProductForm({}); setEditingProductId(null); setImageList([]); }
 
@@ -50,11 +97,11 @@ export default function AdminPage() {
     if (!categoryForm.name || !categoryForm.id) { alert("Category needs id & name"); return; }
       if (editingCategoryId) {
         const res = await fetch(`/api/categories/${editingCategoryId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: categoryForm.name, description: categoryForm.description }) });
-        if (!res.ok) alert('Update failed');
+        if (!res.ok) { if (sessionExpired(res)) return; alert('Update failed'); }
       } else {
         if (categories.some(c => c.id === categoryForm.id)) { alert("ID already exists"); return; }
         const res = await fetch('/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: categoryForm.id, name: categoryForm.name, description: categoryForm.description }) });
-        if (!res.ok) alert('Create failed');
+        if (!res.ok) { if (sessionExpired(res)) return; alert('Create failed'); }
       }
     await loadAll();
     resetCategoryForm();
@@ -76,22 +123,22 @@ export default function AdminPage() {
       const galleryImages: { url: string; order: number }[] = imageList
         .map((u, idx) => ({ url: u, order: idx }))
         .filter(it => it.url && it.url.trim().length > 0);
-      const payload: { id?: string; name?: string; description?: string | null; image: string; price?: number; categoryId?: string; images?: { url: string; order: number }[] } = { id: productForm.id, name: productForm.name, description: productForm.description || null, image: cleanedImage, price: productForm.price, categoryId: selectedCategory };
+      const payload: { id?: string; name?: string; description?: string | null; image: string; price?: number; categoryId?: string; featured?: boolean; images?: { url: string; order: number }[] } = { id: productForm.id, name: productForm.name, description: productForm.description || null, image: cleanedImage, price: productForm.price, categoryId: selectedCategory, featured: !!productForm.featured };
       if (galleryImages.length > 0) payload.images = galleryImages;
     if (editingProductId) {
       const res = await fetch(`/api/products/${editingProductId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) alert('Update failed');
+      if (!res.ok) { if (sessionExpired(res)) return; alert('Update failed'); }
     } else {
       if (products.some(p => p.id === productForm.id)) { alert("ID already exists"); return; }
       const res = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) alert('Create failed');
+      if (!res.ok) { if (sessionExpired(res)) return; alert('Create failed'); }
     }
     await loadAll();
     resetProductForm();
   }
 
   function startEditCategory(c: Category) { setEditingCategoryId(c.id); setCategoryForm(c); }
-  async function removeCategory(id: string) { if (!confirm("Delete category and its products?")) return; const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' }); if (!res.ok) alert('Delete failed'); await loadAll(); }
+  async function removeCategory(id: string) { if (!confirm("Delete category and its products?")) return; const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' }); if (!res.ok) { if (sessionExpired(res)) return; alert('Delete failed'); } await loadAll(); }
   async function startEditProduct(p: Product) {
     setEditingProductId(p.id);
     setProductForm(p);
@@ -108,7 +155,7 @@ export default function AdminPage() {
       }
     } catch {}
   }
-  async function removeProduct(id: string) { if (!confirm("Delete product?")) return; const res = await fetch(`/api/products/${id}`, { method: 'DELETE' }); if (!res.ok) alert('Delete failed'); await loadAll(); }
+  async function removeProduct(id: string) { if (!confirm("Delete product?")) return; const res = await fetch(`/api/products/${id}`, { method: 'DELETE' }); if (!res.ok) { if (sessionExpired(res)) return; alert('Delete failed'); } await loadAll(); }
 
   function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -175,7 +222,7 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ images: galleryImages })
       });
-      if (!res.ok) { alert('Saving images failed'); return; }
+      if (!res.ok) { if (sessionExpired(res)) return; alert('Saving images failed'); return; }
       await loadAll();
       closeManageImages();
     } catch {
@@ -206,6 +253,12 @@ export default function AdminPage() {
     setImageList(list => dedupe([...list, ...parts]));
   }
 
+  if (checkingSession) {
+    return (
+      <div className="max-w-sm mx-auto p-6 mt-10 text-center text-subtle text-sm">Loading…</div>
+    );
+  }
+
   if (!authed) {
     return (
       <div className="max-w-sm mx-auto p-6 mt-10 gift-card gift-hover flex flex-col gap-4">
@@ -214,27 +267,47 @@ export default function AdminPage() {
           <input value={pw} onChange={e => setPw(e.target.value)} type="password" placeholder="Password" className="admin-input" />
           <button className="gift-btn-primary w-full py-3 text-sm">Enter</button>
         </form>
-  <p className="text-xs md:text-sm text-subtle text-center">MVP front-end only password check. Do not use for production.</p>
+  <p className="text-xs md:text-sm text-subtle text-center">Password is verified on the server; your session is kept in a secure cookie.</p>
       </div>
     );
   }
 
+  const q = query.trim().toLowerCase();
+  const filteredCategories = q
+    ? categories.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
+    : categories;
+  const filteredProducts = q
+    ? products.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q) ||
+        p.categoryId.toLowerCase().includes(q))
+    : products;
+
   return (
     <div className="p-4 max-w-6xl mx-auto flex flex-col gap-8">
-      {/* Sticky mobile header */}
-      <div className="sticky top-0 z-20 bg-[var(--gift-bg)]/90 backdrop-blur-sm border-b border-[var(--gift-border)] py-3 mb-2 flex flex-col gap-2 md:static md:bg-transparent md:backdrop-blur-none md:border-none">
-        <div className="flex items-center justify-between">
-          <h1 className="h2-title gradient-text text-base md:text-2xl">Admin Panel</h1>
-          <div className="flex gap-2 md:hidden">
-            <button onClick={() => setShowCategories(s => !s)} aria-expanded={showCategories} className="gift-btn-outline px-4 py-2 text-xs md:text-sm">{showCategories ? 'Hide' : 'Show'} Categories</button>
-            <button onClick={() => setShowProducts(s => !s)} aria-expanded={showProducts} className="gift-btn-outline px-4 py-2 text-xs md:text-sm">{showProducts ? 'Hide' : 'Show'} Products</button>
-          </div>
+      {/* Sticky header: title, logout, search, section toggles (padding matches the cards below) */}
+      <div className="sticky top-0 z-20 bg-[var(--gift-bg)]/95 backdrop-blur-sm border-b border-[var(--gift-border)] px-5 py-4 mb-4 flex flex-col gap-4 md:static md:bg-transparent md:backdrop-blur-none md:border-none">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="h2-title gradient-text text-lg md:text-2xl">Admin Panel</h1>
+          <button onClick={logout} className="gift-btn-outline px-4 py-2 text-xs md:text-sm shrink-0">Logout</button>
         </div>
-  {loading && <p className="text-xs md:text-sm text-subtle">Syncing…</p>}
+        <input
+          type="search"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Search by name or ID…"
+          aria-label="Search categories and products"
+          className="admin-input w-full"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={() => setShowCategories(s => !s)} aria-expanded={showCategories} className="gift-btn-outline px-3 py-2 text-xs md:text-sm flex-1 sm:flex-none whitespace-nowrap">{showCategories ? 'Hide' : 'Show'} Categories</button>
+          <button onClick={() => setShowProducts(s => !s)} aria-expanded={showProducts} className="gift-btn-outline px-3 py-2 text-xs md:text-sm flex-1 sm:flex-none whitespace-nowrap">{showProducts ? 'Hide' : 'Show'} Products</button>
+        </div>
+        {loading && <p className="text-xs md:text-sm text-subtle">Syncing…</p>}
       </div>
 
       {/* Categories Section */}
-      <section className={`gift-card gift-hover transition-opacity duration-300 ${showCategories ? 'px-5 py-5 opacity-100 overflow-visible' : 'px-5 py-0 opacity-0 max-h-0 overflow-hidden'} md:opacity-100 md:overflow-visible md:py-5`}>
+      <section className={`gift-card gift-hover transition-opacity duration-300 ${(showCategories || q) ? 'px-5 py-5 opacity-100 overflow-visible' : 'px-5 py-0 opacity-0 max-h-0 overflow-hidden'}`}>
         <h2 className="text-base font-semibold mb-4 text-high-contrast">Categories</h2>
         <form onSubmit={submitCategory} className="grid gap-4 grid-cols-1 sm:grid-cols-4 text-sm">
           <label className="admin-field">
@@ -255,23 +328,26 @@ export default function AdminPage() {
           </div>
         </form>
         <ul className="mt-4 divide-y divide-[var(--gift-border)]">
-          {categories.map(c => (
-            <li key={c.id} className="py-3 flex justify-between items-center gap-4 text-sm">
-              <div className="flex flex-col">
+          {filteredCategories.map(c => (
+            <li key={c.id} className="py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-sm">
+              <div className="flex flex-col min-w-0">
                 <span className="font-medium text-high-contrast">{c.name}</span>
                 <span className="text-[11px] md:text-xs text-subtle">{c.id}</span>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button onClick={() => startEditCategory(c)} className="gift-btn-outline text-sm px-4 py-2">Edit</button>
-                <button onClick={() => removeCategory(c.id)} className="gift-btn-primary text-sm px-4 py-2">Delete</button>
+                <button onClick={() => startEditCategory(c)} className="gift-btn-outline text-sm px-4 py-2 flex-1 sm:flex-none">Edit</button>
+                <button onClick={() => removeCategory(c.id)} className="gift-btn-primary text-sm px-4 py-2 flex-1 sm:flex-none">Delete</button>
               </div>
             </li>
           ))}
+          {query && filteredCategories.length === 0 && (
+            <li className="py-3 text-sm text-subtle">No categories match “{query}”.</li>
+          )}
         </ul>
       </section>
 
       {/* Products Section */}
-      <section className={`gift-card gift-hover transition-opacity duration-300 ${showProducts ? 'px-5 py-5 opacity-100 overflow-visible' : 'px-5 py-0 opacity-0 max-h-0 overflow-hidden'} md:opacity-100 md:overflow-visible md:py-5`}>
+      <section className={`gift-card gift-hover transition-opacity duration-300 ${(showProducts || q) ? 'px-5 py-5 opacity-100 overflow-visible' : 'px-5 py-0 opacity-0 max-h-0 overflow-hidden'}`}>
         <h2 className="text-base font-semibold mb-4 text-high-contrast">Products</h2>
         <form onSubmit={submitProduct} className="grid gap-4 text-sm grid-cols-1 sm:grid-cols-6">
           <label className="admin-field sm:col-span-2">
@@ -350,6 +426,18 @@ export default function AdminPage() {
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
+          <div className="col-span-full flex items-center gap-3 mt-1">
+            <input
+              id="product-featured"
+              type="checkbox"
+              checked={!!productForm.featured}
+              onChange={e => setProductForm(f => ({ ...f, featured: e.target.checked }))}
+              className="h-4 w-4 accent-[var(--gift-accent)] cursor-pointer"
+            />
+            <label htmlFor="product-featured" className="text-sm font-medium text-high-contrast cursor-pointer select-none">
+              Feature this product on the home page
+            </label>
+          </div>
           <label className="admin-field col-span-full">
             <span className="admin-label">Description</span>
             <textarea value={productForm.description || ''} onChange={e => setProductForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the product (optional)" rows={3} className="admin-input" />
@@ -358,7 +446,7 @@ export default function AdminPage() {
           <div className="col-span-full flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-xs md:text-sm font-medium text-subtle">Gallery Images (optional)</span>
-              <button type="button" onClick={addImageField} className="gift-btn-outline px-3 py-1 text-xs">Add URL</button>
+              <button type="button" onClick={addImageField} className="gift-btn-outline px-3 py-1 text-xs whitespace-nowrap shrink-0">Add URL</button>
             </div>
             <div className="flex flex-col gap-2">
               {imageList.map((u, idx) => (
@@ -405,7 +493,7 @@ export default function AdminPage() {
           </div>
         </form>
         <ul className="mt-4 divide-y divide-[var(--gift-border)]">
-          {products.map(p => (
+          {filteredProducts.map(p => (
             <Fragment key={p.id}>
               <li className="py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-sm">
                 <div className="flex items-center gap-3 min-w-0">
@@ -447,7 +535,7 @@ export default function AdminPage() {
                         </div>
                       ))}
                       <div className="flex items-center gap-2">
-                        <button type="button" onClick={addManageImageField} className="gift-btn-outline px-3 py-1 text-xs">Add URL</button>
+                        <button type="button" onClick={addManageImageField} className="gift-btn-outline px-3 py-1 text-xs whitespace-nowrap shrink-0">Add URL</button>
                         <label className="text-xs md:text-sm text-subtle">Or upload multiple</label>
                         <input type="file" accept="image/*" multiple onChange={handleMultipleManageFiles} className="text-xs md:text-sm" />
                       </div>
@@ -467,6 +555,9 @@ export default function AdminPage() {
               )}
             </Fragment>
           ))}
+          {query && filteredProducts.length === 0 && (
+            <li className="py-3 text-sm text-subtle">No products match “{query}”.</li>
+          )}
         </ul>
       </section>
     </div>

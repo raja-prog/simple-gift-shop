@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "9600717850";
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Divs Aesthetix Gifts";
@@ -19,7 +20,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-[#25D366] font-medium hover:underline"
             >
-              <span>💬</span> Chat on WhatsApp
+              <WhatsAppIcon size={16} /> Chat on WhatsApp
             </a>
             <Link href="/collections" prefetch className="text-zinc-400 hover:text-pink-500 transition-colors link-sweep">
               Browse Collections
@@ -30,12 +31,21 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Divs Aesthetix on Instagram"
-                className="text-zinc-400 hover:text-pink-500 transition-colors"
+                className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" strokeWidth="1.8" />
-                  <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
-                  <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="ig-grad" x1="0" y1="1" x2="1" y2="0">
+                      <stop offset="0" stopColor="#feda75" />
+                      <stop offset="0.35" stopColor="#fa7e1e" />
+                      <stop offset="0.6" stopColor="#d62976" />
+                      <stop offset="0.8" stopColor="#962fbf" />
+                      <stop offset="1" stopColor="#4f5bd5" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig-grad)" />
+                  <circle cx="12" cy="12" r="4" fill="none" stroke="#fff" strokeWidth="1.8" />
+                  <circle cx="17.2" cy="6.8" r="1.15" fill="#fff" />
                 </svg>
               </a>
               <a
@@ -43,11 +53,11 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Divs Aesthetix on YouTube"
-                className="text-zinc-400 hover:text-pink-500 transition-colors"
+                className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect x="2.5" y="5" width="19" height="14" rx="4" stroke="currentColor" strokeWidth="1.8" />
-                  <path d="M10.2 9.3 L15 12 L10.2 14.7 Z" fill="currentColor" />
+                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="2" y="5" width="20" height="14" rx="4.5" fill="#FF0000" />
+                  <path d="M10 8.5 L16 12 L10 15.5 Z" fill="#fff" />
                 </svg>
               </a>
             </div>
