@@ -6,6 +6,12 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  // Netlify Functions run on AWS Lambda (Amazon Linux). Without these targets,
+  // `prisma generate` only builds the local ("native") query-engine binary, so
+  // Prisma works during the build/prerender but throws on EVERY query at runtime
+  // (why the live product pages and /api/images 500 while the homepage is fine).
+  // Generating the Lambda engines lets runtime queries work.
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 model Category {
