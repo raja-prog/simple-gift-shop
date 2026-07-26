@@ -65,8 +65,19 @@ function isBase64Data(raw: string | undefined | null): boolean {
   return typeof raw === "string" && raw.startsWith("data:image/");
 }
 
-export function productImageSrc(raw: string | undefined | null, productId: string): string | undefined {
-  if (isBase64Data(raw)) return `/api/images/product/${encodeURIComponent(productId)}`;
+// Appends a cache-busting `?v=` token so /api/images can be served with a long
+// (effectively immutable) CDN cache: the URL changes whenever the row's
+// updatedAt changes, so an edited image shows up immediately instead of being
+// stuck behind a stale cache. Requests WITHOUT a version keep the short cache
+// (see app/api/images/[kind]/[id]/route.ts).
+export function withImageVersion(url: string, version?: string | number | Date | null): string {
+  if (version === undefined || version === null || version === "") return url;
+  const token = version instanceof Date ? version.getTime() : version;
+  return `${url}?v=${encodeURIComponent(String(token))}`;
+}
+
+export function productImageSrc(raw: string | undefined | null, productId: string, version?: string | number | Date | null): string | undefined {
+  if (isBase64Data(raw)) return withImageVersion(`/api/images/product/${encodeURIComponent(productId)}`, version);
   return normalizeImageUrl(raw);}
 
 export function galleryImageSrc(raw: string | undefined | null, imageId: string): string | undefined {
@@ -77,8 +88,8 @@ export function galleryImageSrc(raw: string | undefined | null, imageId: string)
 // Presence-only resolver for list pages. Avoids transferring huge base64 blobs from
 // the DB just to render a thumbnail: the query selects a cheap "has image" flag, and
 // we always route through the image API (which serves base64 or redirects remote).
-export function listImageSrc(hasImage: boolean, productId: string): string | undefined {
-  return hasImage ? `/api/images/product/${encodeURIComponent(productId)}` : undefined;
+export function listImageSrc(hasImage: boolean, productId: string, version?: string | number | Date | null): string | undefined {
+  return hasImage ? withImageVersion(`/api/images/product/${encodeURIComponent(productId)}`, version) : undefined;
 }
 
 // True when the src can be rendered directly: our own image API path or an allowed remote host.

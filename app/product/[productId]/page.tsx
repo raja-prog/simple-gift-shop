@@ -23,7 +23,7 @@ export default async function ProductPage({ params }: PageProps) {
     prisma.productImage.findMany({ where: { productId: id }, orderBy: { order: 'asc' } })
   ]);
   if (!productDb) return notFound();
-  const baseImage = productImageSrc(productDb.image, productDb.id);
+  const baseImage = productImageSrc(productDb.image, productDb.id, productDb.updatedAt);
   const gallery = (images as Array<{ id: string; url: string; alt?: string | null }>)
     .map((img) => ({ url: galleryImageSrc(img.url, img.id), alt: img.alt || productDb.name }))
     .filter((i) => !!i.url)

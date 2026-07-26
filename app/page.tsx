@@ -18,6 +18,7 @@ type FeaturedRow = {
   price: unknown;
   categoryId: string;
   hasImage: boolean;
+  updatedAt: Date;
 };
 
 type PreviewRow = {
@@ -25,6 +26,7 @@ type PreviewRow = {
   id: string;
   name: string;
   hasImage: boolean;
+  updatedAt: Date;
 };
 
 export default async function Home() {
@@ -37,17 +39,18 @@ export default async function Home() {
       select: { id: true, name: true, description: true },
     }),
     prisma.$queryRaw<FeaturedRow[]>`
-      SELECT id, name, description, price, "categoryId",
+      SELECT id, name, description, price, "categoryId", "updatedAt",
              (image IS NOT NULL AND image <> '') AS "hasImage"
       FROM "Product"
       ORDER BY featured DESC, "createdAt" DESC
       LIMIT 6
     `,
     prisma.$queryRaw<PreviewRow[]>`
-      SELECT "categoryId", id, name, "hasImage"
+      SELECT "categoryId", id, name, "hasImage", "updatedAt"
       FROM (
         SELECT "categoryId", id, name,
                (image IS NOT NULL AND image <> '') AS "hasImage",
+               "updatedAt",
                ROW_NUMBER() OVER (PARTITION BY "categoryId" ORDER BY "createdAt" DESC) AS rn
         FROM "Product"
       ) s
@@ -87,7 +90,7 @@ export default async function Home() {
                         id: p.id,
                         name: p.name,
                         description: p.description || "",
-                        image: listImageSrc(p.hasImage, p.id) || "",
+                        image: listImageSrc(p.hasImage, p.id, p.updatedAt) || "",
                         price: Number(p.price),
                         categoryId: p.categoryId,
                       }}
@@ -115,7 +118,7 @@ export default async function Home() {
               <CategoryCard
                 key={c.id}
                 category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-                previews={(previewsByCategory.get(c.id) ?? []).map(p => ({ id: p.id, name: p.name, image: listImageSrc(p.hasImage, p.id) || "" }))}
+                previews={(previewsByCategory.get(c.id) ?? []).map(p => ({ id: p.id, name: p.name, image: listImageSrc(p.hasImage, p.id, p.updatedAt) || "" }))}
               />
             ))}
           </RevealGrid>

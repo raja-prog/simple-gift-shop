@@ -38,7 +38,8 @@ export default async function CategoryPage({ params }: PageProps) {
         description: true,
         image: true,
         price: true,
-        categoryId: true
+        categoryId: true,
+        updatedAt: true
       }
     })
   ]);
@@ -80,7 +81,7 @@ export default async function CategoryPage({ params }: PageProps) {
               id: p.id,
               name: p.name,
               description: p.description || "",
-              image: firstImageByProduct.get(p.id) || productImageSrc(p.image, p.id) || "",
+              image: firstImageByProduct.get(p.id) || productImageSrc(p.image, p.id, p.updatedAt) || "",
               price: Number(p.price),
               categoryId: p.categoryId,
             }}

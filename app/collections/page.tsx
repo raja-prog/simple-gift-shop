@@ -18,7 +18,7 @@ export default async function CollectionsPage() {
       products: {
         orderBy: { createdAt: "desc" },
         take: 3,
-        select: { id: true, name: true, image: true },
+        select: { id: true, name: true, image: true, updatedAt: true },
       },
     },
   });
@@ -59,7 +59,7 @@ export default async function CollectionsPage() {
             <CategoryCard
               key={c.id}
               category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-              previews={c.products.map((p: (typeof c.products)[number]) => ({ id: p.id, name: p.name, image: productImageSrc(p.image, p.id) || "" }))}
+              previews={c.products.map((p: (typeof c.products)[number]) => ({ id: p.id, name: p.name, image: productImageSrc(p.image, p.id, p.updatedAt) || "" }))}
             />
           ))}
         </div>

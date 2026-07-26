@@ -66,23 +66,28 @@ export async function GET(
     return new Response(null, { status: 304, headers: { ETag: etag } });
   }
 
+  // A version token (?v=<updatedAt>) makes the URL content-stable: an edit bumps
+  // updatedAt, producing a new URL, so versioned bytes can never change. We cache
+  // those aggressively (1 year, immutable) which keeps the serverless FUNCTION
+  // and the DB out of the hot path almost entirely — the key to staying inside
+  // the free-tier transfer + function quotas. Un-versioned requests keep the
+  // conservative 1-hour cache so a stale image can never get stuck.
+  const versioned = !!req.nextUrl.searchParams.get("v");
+  const browserCache = versioned
+    ? "public, max-age=31536000, immutable"
+    : "public, max-age=3600, stale-while-revalidate=86400";
+  const cdnCache = versioned
+    ? "public, durable, max-age=31536000, immutable"
+    : "public, durable, max-age=3600, stale-while-revalidate=86400";
+
   return new Response(buffer, {
     status: 200,
     headers: {
       "Content-Type": contentType,
       "Content-Length": String(buffer.byteLength),
       ETag: etag,
-      // Browser cache (per-visitor).
-      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-      // Netlify edge CDN cache: this is what keeps the serverless FUNCTION from
-      // being re-invoked on every request. `durable` persists the cached bytes
-      // across CDN nodes and deploys, so with a 1-hour TTL each image is fetched
-      // from the DB at most ~once per hour instead of on every single page view.
-      // That caps function invocations to roughly (#images) per hour regardless
-      // of traffic — the key to staying inside the free-tier quota — while admin
-      // image edits still become visible within the hour (stale-while-revalidate
-      // serves the old bytes meanwhile so users never wait).
-      "Netlify-CDN-Cache-Control": "public, durable, max-age=3600, stale-while-revalidate=86400",
+      "Cache-Control": browserCache,
+      "Netlify-CDN-Cache-Control": cdnCache,
     },
   });
 }

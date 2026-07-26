@@ -143,14 +143,17 @@ export default function AdminPage() {
     setEditingProductId(p.id);
     setProductForm(p);
     setSelectedCategory(p.categoryId);
-    // Auto-select mode based on existing image format
-    setUseFileUpload(p.image.startsWith('data:'));
-    // Load gallery images for this product
+    // The product list no longer carries the raw image (to save DB transfer), so
+    // load the real image + gallery from the per-product endpoint. This also
+    // prevents saving from overwriting the image with the thumbnail URL.
     try {
       const res = await fetch(`/api/products/${p.id}`);
       if (res.ok) {
-  const full: { images?: Array<{ url: string }> } = await res.json();
-  const urls = Array.isArray(full.images) ? full.images.map((it) => it.url).filter((u) => !!u) : [];
+        const full: { image?: string; images?: Array<{ url: string }> } = await res.json();
+        const realImage = typeof full.image === 'string' ? full.image : '';
+        setProductForm(f => ({ ...f, image: realImage }));
+        setUseFileUpload(realImage.startsWith('data:'));
+        const urls = Array.isArray(full.images) ? full.images.map((it) => it.url).filter((u) => !!u) : [];
         setImageList(urls);
       }
     } catch {}

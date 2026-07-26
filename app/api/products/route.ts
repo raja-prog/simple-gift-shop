@@ -2,10 +2,29 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { revalidateStorefront } from '@/lib/revalidate';
 import { guardMutation, tooLarge } from '@/lib/api-guard';
+import { listImageSrc } from '@/lib/image';
 
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
+    // Return a lightweight product list: never ship the base64 image blobs (a
+    // major DB-egress sink). Select an image-presence flag and hand back a
+    // cacheable /api/images URL instead of the bytes; the full image is loaded
+    // on demand from GET /api/products/[id] when editing.
+    const rows = await prisma.$queryRaw<Array<{ id: string; name: string; description: string | null; price: unknown; categoryId: string; featured: boolean; hasImage: boolean; updatedAt: Date }>>`
+      SELECT id, name, description, price, "categoryId", featured, "updatedAt",
+             (image IS NOT NULL AND image <> '') AS "hasImage"
+      FROM "Product"
+      ORDER BY "createdAt" DESC
+    `;
+    const products = rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      price: Number(r.price),
+      categoryId: r.categoryId,
+      featured: r.featured,
+      image: listImageSrc(r.hasImage, r.id, r.updatedAt) || '',
+    }));
     return NextResponse.json(products);
   } catch {
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
