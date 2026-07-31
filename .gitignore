@@ -37,6 +37,9 @@ yarn-error.log*
 /backups/db-backup.json
 /backups/vercel-env.txt
 
+# local image migration staging (uploaded to Cloudinary, never committed)
+/.image-staging/
+
 # vercel
 .vercel
 

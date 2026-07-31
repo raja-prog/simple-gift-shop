@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { listImageSrc } from "@/lib/image";
+import { productImageSrc } from "@/lib/image";
 import { CategoryCard } from "@/components/CategoryCard";
 import { HeroSection } from "@/components/HeroSection";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -17,7 +17,7 @@ type FeaturedRow = {
   description: string | null;
   price: unknown;
   categoryId: string;
-  hasImage: boolean;
+  image: string | null;
   updatedAt: Date;
 };
 
@@ -25,32 +25,28 @@ type PreviewRow = {
   categoryId: string;
   id: string;
   name: string;
-  hasImage: boolean;
+  image: string | null;
   updatedAt: Date;
 };
 
 export default async function Home() {
-  // Fetch only image *presence* (not the heavy base64 blob) to keep the
-  // homepage payload small and fast on the Neon free tier. Actual images are
-  // streamed on-demand and cached via /api/images/product/:id.
+  // Images are now small Cloudinary URLs (not base64 blobs), so we select the
+  // image column directly and render it straight from Cloudinary's CDN.
   const [categories, featured, previews] = await Promise.all([
     prisma.category.findMany({
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true, description: true },
     }),
     prisma.$queryRaw<FeaturedRow[]>`
-      SELECT id, name, description, price, "categoryId", "updatedAt",
-             (image IS NOT NULL AND image <> '') AS "hasImage"
+      SELECT id, name, description, price, "categoryId", "updatedAt", image
       FROM "Product"
       ORDER BY featured DESC, "createdAt" DESC
       LIMIT 6
     `,
     prisma.$queryRaw<PreviewRow[]>`
-      SELECT "categoryId", id, name, "hasImage", "updatedAt"
+      SELECT "categoryId", id, name, image, "updatedAt"
       FROM (
-        SELECT "categoryId", id, name,
-               (image IS NOT NULL AND image <> '') AS "hasImage",
-               "updatedAt",
+        SELECT "categoryId", id, name, image, "updatedAt",
                ROW_NUMBER() OVER (PARTITION BY "categoryId" ORDER BY "createdAt" DESC) AS rn
         FROM "Product"
       ) s
@@ -90,7 +86,7 @@ export default async function Home() {
                         id: p.id,
                         name: p.name,
                         description: p.description || "",
-                        image: listImageSrc(p.hasImage, p.id, p.updatedAt) || "",
+                        image: productImageSrc(p.image, p.id, p.updatedAt) || "",
                         price: Number(p.price),
                         categoryId: p.categoryId,
                       }}
@@ -118,7 +114,7 @@ export default async function Home() {
               <CategoryCard
                 key={c.id}
                 category={{ id: c.id, name: c.name, description: c.description ?? undefined }}
-                previews={(previewsByCategory.get(c.id) ?? []).map(p => ({ id: p.id, name: p.name, image: listImageSrc(p.hasImage, p.id, p.updatedAt) || "" }))}
+                previews={(previewsByCategory.get(c.id) ?? []).map(p => ({ id: p.id, name: p.name, image: productImageSrc(p.image, p.id, p.updatedAt) || "" }))}
               />
             ))}
           </RevealGrid>

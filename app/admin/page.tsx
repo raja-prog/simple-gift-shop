@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, Fragment } from "react";
 import Image from "next/image";
+import { uploadToCloudinary } from "@/lib/image";
 
 interface Category { id: string; name: string; description?: string | null; }
 interface Product { id: string; name: string; description?: string | null; image: string; price: number; categoryId: string; featured?: boolean; }
@@ -160,12 +161,15 @@ export default function AdminPage() {
   }
   async function removeProduct(id: string) { if (!confirm("Delete product?")) return; const res = await fetch(`/api/products/${id}`, { method: 'DELETE' }); if (!res.ok) { if (sessionExpired(res)) return; alert('Delete failed'); } await loadAll(); }
 
-  function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => setProductForm(f => ({ ...f, image: ev.target?.result as string }));
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadToCloudinary(file);
+      setProductForm(f => ({ ...f, image: url }));
+    } catch (err) {
+      alert('Image upload failed: ' + (err instanceof Error ? err.message : 'unknown error'));
+    }
   }
 
   function addImageField() { setImageList(list => [...list, '']); }
@@ -204,14 +208,9 @@ export default function AdminPage() {
   function handleMultipleManageFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    const readers = files.map(file => new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = ev => resolve(String(ev.target?.result || ''));
-      reader.readAsDataURL(file);
-    }));
-    Promise.all(readers).then(results => {
-      setManageImageList(list => dedupe([...list, ...results]));
-    });
+    Promise.all(files.map(file => uploadToCloudinary(file)))
+      .then(results => setManageImageList(list => dedupe([...list, ...results])))
+      .catch(err => alert('Image upload failed: ' + (err instanceof Error ? err.message : 'unknown error')));
     e.currentTarget.value = '';
   }
   async function saveManageImages() {
@@ -235,14 +234,9 @@ export default function AdminPage() {
   function handleMultipleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    const readers = files.map(file => new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = ev => resolve(String(ev.target?.result || ''));
-      reader.readAsDataURL(file);
-    }));
-    Promise.all(readers).then(results => {
-      setImageList(list => dedupe([...list, ...results]));
-    });
+    Promise.all(files.map(file => uploadToCloudinary(file)))
+      .then(results => setImageList(list => dedupe([...list, ...results])))
+      .catch(err => alert('Image upload failed: ' + (err instanceof Error ? err.message : 'unknown error')));
     // clear input
     e.currentTarget.value = '';
   }

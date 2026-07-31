@@ -5,7 +5,8 @@
 const DEFAULT_ALLOWED_HOSTS = [
   'images.unsplash.com',
   'placehold.co',
-  'rukminim2.flixcart.com'
+  'rukminim2.flixcart.com',
+  'res.cloudinary.com'
 ];
 
 function getAllowedHosts(): Set<string> {
@@ -76,13 +77,42 @@ export function withImageVersion(url: string, version?: string | number | Date |
   return `${url}?v=${encodeURIComponent(String(token))}`;
 }
 
+// Insert Cloudinary auto format/quality transforms so delivered images are
+// smaller (webp/avif). No-op for non-Cloudinary URLs.
+function optimizeCloudinary(url: string | undefined): string | undefined {
+  if (!url || !url.includes('res.cloudinary.com')) return url;
+  const marker = '/image/upload/';
+  const i = url.indexOf(marker);
+  if (i === -1) return url;
+  const start = i + marker.length;
+  const rest = url.slice(start);
+  if (rest.startsWith('f_auto') || rest.startsWith('q_auto')) return url;
+  return url.slice(0, start) + 'f_auto,q_auto/' + rest;
+}
+
 export function productImageSrc(raw: string | undefined | null, productId: string, version?: string | number | Date | null): string | undefined {
   if (isBase64Data(raw)) return withImageVersion(`/api/images/product/${encodeURIComponent(productId)}`, version);
-  return normalizeImageUrl(raw);}
+  return optimizeCloudinary(normalizeImageUrl(raw));
+}
 
 export function galleryImageSrc(raw: string | undefined | null, imageId: string): string | undefined {
   if (isBase64Data(raw)) return `/api/images/gallery/${encodeURIComponent(imageId)}`;
-  return normalizeImageUrl(raw);
+  return optimizeCloudinary(normalizeImageUrl(raw));
+}
+
+// Client-side unsigned upload to Cloudinary; returns the delivered secure URL.
+export async function uploadToCloudinary(file: File): Promise<string> {
+  const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  if (!cloud || !preset) throw new Error('Cloudinary is not configured (set NEXT_PUBLIC_CLOUDINARY_* env vars)');
+  const form = new FormData();
+  form.append('file', file);
+  form.append('upload_preset', preset);
+  form.append('folder', 'divs/product');
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`, { method: 'POST', body: form });
+  const json = await res.json();
+  if (!res.ok) throw new Error((json as { error?: { message?: string } })?.error?.message || 'Cloudinary upload failed');
+  return (json as { secure_url: string }).secure_url;
 }
 
 // Presence-only resolver for list pages. Avoids transferring huge base64 blobs from

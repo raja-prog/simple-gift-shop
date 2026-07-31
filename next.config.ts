@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "rukminim2.flixcart.com",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
       }
     ],
     // Allow SVG/data URLs when needed (fallback components will still guard).
